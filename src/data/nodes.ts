@@ -12,51 +12,1153 @@ export interface DefenseNodeDef {
   damageMult: number;
 }
 
-export const DEFENSE_NODES: DefenseNodeDef[] = [
-  // Sector 1: Conduit Entry & First Sweep (Y: 70 - 210)
-  { id: 1, x: 140, y: 76, type: 'standard', label: 'Node Alpha-1', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
-  { id: 2, x: 230, y: 76, type: 'range', label: 'Node Alpha-2', bonusDesc: '+25% Weapon Range', speedMult: 1, rangeMult: 1.25, damageMult: 1 },
-  { id: 3, x: 140, y: 204, type: 'standard', label: 'Node Alpha-3', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
-  { id: 4, x: 230, y: 204, type: 'power', label: 'Node Alpha-4', bonusDesc: '+20% Attack Rate', speedMult: 1.25, rangeMult: 1, damageMult: 1 },
+export const MAP_DEFENSE_NODES: Record<string, DefenseNodeDef[]> = {
+  first_contact: [
+    {
+      id: 1,
+      x: 180,
+      y: 95,
+      type: 'standard',
+      label: 'Slot 01',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 2,
+      x: 300,
+      y: 95,
+      type: 'range',
+      label: 'Slot 02',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 3,
+      x: 180,
+      y: 225,
+      type: 'power',
+      label: 'Slot 03',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 4,
+      x: 300,
+      y: 225,
+      type: 'standard',
+      label: 'Slot 04',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 5,
+      x: 520,
+      y: 160,
+      type: 'amplifier',
+      label: 'Slot 05',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 6,
+      x: 380,
+      y: 320,
+      type: 'standard',
+      label: 'Slot 06',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 7,
+      x: 520,
+      y: 320,
+      type: 'power',
+      label: 'Slot 07',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 8,
+      x: 380,
+      y: 440,
+      type: 'range',
+      label: 'Slot 08',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 9,
+      x: 620,
+      y: 430,
+      type: 'standard',
+      label: 'Slot 09',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 10,
+      x: 740,
+      y: 430,
+      type: 'amplifier',
+      label: 'Slot 10',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 11,
+      x: 620,
+      y: 570,
+      type: 'power',
+      label: 'Slot 11',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 12,
+      x: 740,
+      y: 570,
+      type: 'standard',
+      label: 'Slot 12',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 13,
+      x: 910,
+      y: 380,
+      type: 'range',
+      label: 'Slot 13',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 14,
+      x: 910,
+      y: 180,
+      type: 'amplifier',
+      label: 'Slot 14',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 15,
+      x: 1060,
+      y: 190,
+      type: 'standard',
+      label: 'Slot 15',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 16,
+      x: 1060,
+      y: 330,
+      type: 'power',
+      label: 'Slot 16',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    }
+  ],
+  swarm_protocol: [
+    {
+      id: 1,
+      x: 160,
+      y: 65,
+      type: 'standard',
+      label: 'Slot 01',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 2,
+      x: 280,
+      y: 65,
+      type: 'power',
+      label: 'Slot 02',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 3,
+      x: 430,
+      y: 195,
+      type: 'standard',
+      label: 'Slot 03',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 4,
+      x: 290,
+      y: 340,
+      type: 'range',
+      label: 'Slot 04',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 5,
+      x: 430,
+      y: 480,
+      type: 'power',
+      label: 'Slot 05',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 6,
+      x: 540,
+      y: 630,
+      type: 'amplifier',
+      label: 'Slot 06',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 7,
+      x: 610,
+      y: 420,
+      type: 'standard',
+      label: 'Slot 07',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 8,
+      x: 750,
+      y: 420,
+      type: 'power',
+      label: 'Slot 08',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 9,
+      x: 610,
+      y: 260,
+      type: 'range',
+      label: 'Slot 09',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 10,
+      x: 750,
+      y: 115,
+      type: 'amplifier',
+      label: 'Slot 10',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 11,
+      x: 870,
+      y: 115,
+      type: 'standard',
+      label: 'Slot 11',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 12,
+      x: 1050,
+      y: 240,
+      type: 'power',
+      label: 'Slot 12',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 13,
+      x: 910,
+      y: 380,
+      type: 'range',
+      label: 'Slot 13',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 14,
+      x: 1050,
+      y: 550,
+      type: 'standard',
+      label: 'Slot 14',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 15,
+      x: 1140,
+      y: 400,
+      type: 'amplifier',
+      label: 'Slot 15',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    }
+  ],
+  blackout: [
+    {
+      id: 1,
+      x: 160,
+      y: 110,
+      type: 'standard',
+      label: 'Slot 01',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 2,
+      x: 260,
+      y: 250,
+      type: 'range',
+      label: 'Slot 02',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 3,
+      x: 380,
+      y: 260,
+      type: 'power',
+      label: 'Slot 03',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 4,
+      x: 360,
+      y: 440,
+      type: 'standard',
+      label: 'Slot 04',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 5,
+      x: 500,
+      y: 600,
+      type: 'amplifier',
+      label: 'Slot 05',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 6,
+      x: 580,
+      y: 420,
+      type: 'power',
+      label: 'Slot 06',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 7,
+      x: 670,
+      y: 280,
+      type: 'standard',
+      label: 'Slot 07',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 8,
+      x: 800,
+      y: 110,
+      type: 'range',
+      label: 'Slot 08',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 9,
+      x: 890,
+      y: 260,
+      type: 'amplifier',
+      label: 'Slot 09',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 10,
+      x: 880,
+      y: 440,
+      type: 'power',
+      label: 'Slot 10',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 11,
+      x: 1000,
+      y: 580,
+      type: 'standard',
+      label: 'Slot 11',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 12,
+      x: 1080,
+      y: 420,
+      type: 'range',
+      label: 'Slot 12',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 13,
+      x: 1140,
+      y: 260,
+      type: 'amplifier',
+      label: 'Slot 13',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    }
+  ],
+  overdrive: [
+    {
+      id: 1,
+      x: 160,
+      y: 430,
+      type: 'standard',
+      label: 'Slot 01',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 2,
+      x: 220,
+      y: 270,
+      type: 'power',
+      label: 'Slot 02',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 3,
+      x: 380,
+      y: 80,
+      type: 'range',
+      label: 'Slot 03',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 4,
+      x: 560,
+      y: 80,
+      type: 'amplifier',
+      label: 'Slot 04',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 5,
+      x: 740,
+      y: 80,
+      type: 'standard',
+      label: 'Slot 05',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 6,
+      x: 960,
+      y: 220,
+      type: 'power',
+      label: 'Slot 06',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 7,
+      x: 960,
+      y: 400,
+      type: 'amplifier',
+      label: 'Slot 07',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 8,
+      x: 800,
+      y: 510,
+      type: 'range',
+      label: 'Slot 08',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 9,
+      x: 640,
+      y: 510,
+      type: 'power',
+      label: 'Slot 09',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 10,
+      x: 420,
+      y: 480,
+      type: 'standard',
+      label: 'Slot 10',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 11,
+      x: 600,
+      y: 280,
+      type: 'amplifier',
+      label: 'Slot 11',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 12,
+      x: 750,
+      y: 280,
+      type: 'range',
+      label: 'Slot 12',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 13,
+      x: 1040,
+      y: 460,
+      type: 'standard',
+      label: 'Slot 13',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 14,
+      x: 1120,
+      y: 270,
+      type: 'power',
+      label: 'Slot 14',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    }
+  ],
+  hardcore: [
+    {
+      id: 1,
+      x: 150,
+      y: 75,
+      type: 'standard',
+      label: 'Slot 01',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 2,
+      x: 180,
+      y: 320,
+      type: 'range',
+      label: 'Slot 02',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 3,
+      x: 330,
+      y: 480,
+      type: 'power',
+      label: 'Slot 03',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 4,
+      x: 440,
+      y: 340,
+      type: 'amplifier',
+      label: 'Slot 04',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 5,
+      x: 440,
+      y: 190,
+      type: 'standard',
+      label: 'Slot 05',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 6,
+      x: 600,
+      y: 90,
+      type: 'power',
+      label: 'Slot 06',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 7,
+      x: 700,
+      y: 240,
+      type: 'range',
+      label: 'Slot 07',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 8,
+      x: 700,
+      y: 420,
+      type: 'amplifier',
+      label: 'Slot 08',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 9,
+      x: 860,
+      y: 500,
+      type: 'standard',
+      label: 'Slot 09',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 10,
+      x: 920,
+      y: 340,
+      type: 'power',
+      label: 'Slot 10',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 11,
+      x: 920,
+      y: 190,
+      type: 'range',
+      label: 'Slot 11',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 12,
+      x: 1080,
+      y: 420,
+      type: 'amplifier',
+      label: 'Slot 12',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 13,
+      x: 1140,
+      y: 230,
+      type: 'standard',
+      label: 'Slot 13',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    }
+  ],
+  boss_rush: [
+    {
+      id: 1,
+      x: 170,
+      y: 140,
+      type: 'standard',
+      label: 'Slot 01',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 2,
+      x: 280,
+      y: 140,
+      type: 'power',
+      label: 'Slot 02',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 3,
+      x: 500,
+      y: 70,
+      type: 'amplifier',
+      label: 'Slot 03',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 4,
+      x: 700,
+      y: 70,
+      type: 'range',
+      label: 'Slot 04',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 5,
+      x: 850,
+      y: 70,
+      type: 'power',
+      label: 'Slot 05',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 6,
+      x: 1020,
+      y: 200,
+      type: 'amplifier',
+      label: 'Slot 06',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 7,
+      x: 1020,
+      y: 400,
+      type: 'range',
+      label: 'Slot 07',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 8,
+      x: 860,
+      y: 510,
+      type: 'power',
+      label: 'Slot 08',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 9,
+      x: 680,
+      y: 510,
+      type: 'standard',
+      label: 'Slot 09',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 10,
+      x: 500,
+      y: 510,
+      type: 'amplifier',
+      label: 'Slot 10',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 11,
+      x: 220,
+      y: 480,
+      type: 'power',
+      label: 'Slot 11',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 12,
+      x: 520,
+      y: 280,
+      type: 'range',
+      label: 'Slot 12',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 13,
+      x: 700,
+      y: 280,
+      type: 'amplifier',
+      label: 'Slot 13',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 14,
+      x: 1080,
+      y: 480,
+      type: 'standard',
+      label: 'Slot 14',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    }
+  ],
+  last_orbit: [
+    {
+      id: 1,
+      x: 180,
+      y: 76,
+      type: 'standard',
+      label: 'Slot 01',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 2,
+      x: 260,
+      y: 76,
+      type: 'range',
+      label: 'Slot 02',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 3,
+      x: 260,
+      y: 210,
+      type: 'power',
+      label: 'Slot 03',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 4,
+      x: 420,
+      y: 250,
+      type: 'standard',
+      label: 'Slot 04',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 5,
+      x: 240,
+      y: 440,
+      type: 'range',
+      label: 'Slot 05',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 6,
+      x: 90,
+      y: 480,
+      type: 'amplifier',
+      label: 'Slot 06',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 7,
+      x: 380,
+      y: 500,
+      type: 'power',
+      label: 'Slot 07',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 8,
+      x: 540,
+      y: 500,
+      type: 'standard',
+      label: 'Slot 08',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 9,
+      x: 700,
+      y: 480,
+      type: 'amplifier',
+      label: 'Slot 09',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 10,
+      x: 540,
+      y: 340,
+      type: 'power',
+      label: 'Slot 10',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 11,
+      x: 700,
+      y: 220,
+      type: 'range',
+      label: 'Slot 11',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 12,
+      x: 800,
+      y: 140,
+      type: 'standard',
+      label: 'Slot 12',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 13,
+      x: 960,
+      y: 140,
+      type: 'power',
+      label: 'Slot 13',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 14,
+      x: 800,
+      y: 360,
+      type: 'amplifier',
+      label: 'Slot 14',
+      bonusDesc: '+25% Weapon Damage',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1.25
+    },
+    {
+      id: 15,
+      x: 960,
+      y: 360,
+      type: 'range',
+      label: 'Slot 15',
+      bonusDesc: '+25% Weapon Range',
+      speedMult: 1,
+      rangeMult: 1.25,
+      damageMult: 1
+    },
+    {
+      id: 16,
+      x: 1040,
+      y: 560,
+      type: 'standard',
+      label: 'Slot 16',
+      bonusDesc: 'Standard Defense Socket',
+      speedMult: 1,
+      rangeMult: 1,
+      damageMult: 1
+    },
+    {
+      id: 17,
+      x: 1220,
+      y: 460,
+      type: 'power',
+      label: 'Slot 17',
+      bonusDesc: '+25% Attack Speed',
+      speedMult: 1.25,
+      rangeMult: 1,
+      damageMult: 1
+    }
+  ]
+};
 
-  // Sector 2: First Hairpin & Descent (X: 340-410, Y: 140-360)
-  { id: 5, x: 410, y: 140, type: 'amplifier', label: 'Node Beta-1', bonusDesc: '+25% Kinetic/Thermal Damage', speedMult: 1, rangeMult: 1, damageMult: 1.25 },
-  { id: 6, x: 410, y: 250, type: 'standard', label: 'Node Beta-2', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
-  { id: 7, x: 410, y: 360, type: 'power', label: 'Node Beta-3', bonusDesc: '+20% Attack Rate', speedMult: 1.25, rangeMult: 1, damageMult: 1 },
+// Global active defense nodes list for the current map
+export let DEFENSE_NODES: DefenseNodeDef[] = MAP_DEFENSE_NODES.first_contact;
 
-  // Sector 3: Interior Switchback (X: 160-340, Y: 280-450)
-  { id: 8, x: 250, y: 280, type: 'range', label: 'Node Gamma-1', bonusDesc: '+25% Weapon Range', speedMult: 1, rangeMult: 1.25, damageMult: 1 },
-  { id: 9, x: 250, y: 440, type: 'standard', label: 'Node Gamma-2', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
-  { id: 10, x: 90, y: 360, type: 'amplifier', label: 'Node Gamma-3', bonusDesc: '+25% Kinetic/Thermal Damage', speedMult: 1, rangeMult: 1, damageMult: 1.25 },
-  { id: 11, x: 90, y: 470, type: 'standard', label: 'Node Gamma-4', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
+export function setActiveDefenseNodes(mapId: string): DefenseNodeDef[] {
+  DEFENSE_NODES = MAP_DEFENSE_NODES[mapId] || MAP_DEFENSE_NODES.first_contact;
+  return DEFENSE_NODES;
+}
 
-  // Sector 4: Lower Conduit Causeway (X: 160-620, Y: 510-650)
-  { id: 12, x: 160, y: 648, type: 'standard', label: 'Node Delta-1', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
-  { id: 13, x: 280, y: 648, type: 'power', label: 'Node Delta-2', bonusDesc: '+20% Attack Rate', speedMult: 1.25, rangeMult: 1, damageMult: 1 },
-  { id: 14, x: 400, y: 648, type: 'amplifier', label: 'Node Delta-3', bonusDesc: '+25% Kinetic/Thermal Damage', speedMult: 1, rangeMult: 1, damageMult: 1.25 },
-  { id: 15, x: 520, y: 648, type: 'range', label: 'Node Delta-4', bonusDesc: '+25% Weapon Range', speedMult: 1, rangeMult: 1.25, damageMult: 1 },
-  { id: 16, x: 340, y: 510, type: 'standard', label: 'Node Delta-5', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
-  { id: 17, x: 470, y: 510, type: 'power', label: 'Node Delta-6', bonusDesc: '+20% Attack Rate', speedMult: 1.25, rangeMult: 1, damageMult: 1 },
-
-  // Sector 5: Central Ascent (X: 550-690, Y: 220-500)
-  { id: 18, x: 550, y: 410, type: 'standard', label: 'Node Epsilon-1', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
-  { id: 19, x: 550, y: 290, type: 'amplifier', label: 'Node Epsilon-2', bonusDesc: '+25% Kinetic/Thermal Damage', speedMult: 1, rangeMult: 1, damageMult: 1.25 },
-  { id: 20, x: 690, y: 490, type: 'range', label: 'Node Epsilon-3', bonusDesc: '+25% Weapon Range', speedMult: 1, rangeMult: 1.25, damageMult: 1 },
-  { id: 21, x: 690, y: 370, type: 'power', label: 'Node Epsilon-4', bonusDesc: '+20% Attack Rate', speedMult: 1.25, rangeMult: 1, damageMult: 1 },
-  { id: 22, x: 690, y: 220, type: 'standard', label: 'Node Epsilon-5', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
-
-  // Sector 6: Upper East Flank (X: 750-950, Y: 140-350)
-  { id: 23, x: 750, y: 150, type: 'range', label: 'Node Zeta-1', bonusDesc: '+25% Weapon Range', speedMult: 1, rangeMult: 1.25, damageMult: 1 },
-  { id: 24, x: 880, y: 140, type: 'amplifier', label: 'Node Zeta-2', bonusDesc: '+25% Kinetic/Thermal Damage', speedMult: 1, rangeMult: 1, damageMult: 1.25 },
-  { id: 25, x: 750, y: 290, type: 'standard', label: 'Node Zeta-3', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
-  { id: 26, x: 950, y: 230, type: 'power', label: 'Node Zeta-4', bonusDesc: '+20% Attack Rate', speedMult: 1.25, rangeMult: 1, damageMult: 1 },
-  { id: 27, x: 950, y: 360, type: 'range', label: 'Node Zeta-5', bonusDesc: '+25% Weapon Range', speedMult: 1, rangeMult: 1.25, damageMult: 1 },
-
-  // Sector 7: Core Approach & Perimeter (X: 810-1210, Y: 300-550)
-  { id: 28, x: 810, y: 440, type: 'standard', label: 'Node Omega-1', bonusDesc: 'Standard Tactical Anchor', speedMult: 1, rangeMult: 1, damageMult: 1 },
-  { id: 29, x: 1010, y: 550, type: 'amplifier', label: 'Node Omega-2', bonusDesc: '+25% Kinetic/Thermal Damage', speedMult: 1, rangeMult: 1, damageMult: 1.25 },
-  { id: 30, x: 1010, y: 400, type: 'power', label: 'Node Omega-3', bonusDesc: '+20% Attack Rate', speedMult: 1.25, rangeMult: 1, damageMult: 1 },
-  { id: 31, x: 1070, y: 280, type: 'range', label: 'Node Omega-4', bonusDesc: '+25% Weapon Range', speedMult: 1, rangeMult: 1.25, damageMult: 1 },
-  { id: 32, x: 1210, y: 440, type: 'amplifier', label: 'Node Omega-5', bonusDesc: '+25% Kinetic/Thermal Damage', speedMult: 1, rangeMult: 1, damageMult: 1.25 },
-  { id: 33, x: 1210, y: 290, type: 'power', label: 'Node Omega-6', bonusDesc: '+20% Attack Rate', speedMult: 1.25, rangeMult: 1, damageMult: 1 }
-];
+export function getNodeById(id: number): DefenseNodeDef | undefined {
+  return DEFENSE_NODES.find(n => n.id === id);
+}

@@ -11,30 +11,133 @@ export interface PathSegment {
   endDistance: number;
 }
 
+export const MAP_WAYPOINTS: Record<string, Point[]> = {
+  first_contact: [
+    { x: 60, y: 160 },
+    { x: 450, y: 160 },
+    { x: 450, y: 500 },
+    { x: 840, y: 500 },
+    { x: 840, y: 260 },
+    { x: 1180, y: 260 }
+  ],
+  swarm_protocol: [
+    { x: 60, y: 130 },
+    { x: 360, y: 130 },
+    { x: 360, y: 560 },
+    { x: 680, y: 560 },
+    { x: 680, y: 180 },
+    { x: 980, y: 180 },
+    { x: 980, y: 480 },
+    { x: 1180, y: 480 }
+  ],
+  blackout: [
+    { x: 60, y: 180 },
+    { x: 300, y: 180 },
+    { x: 480, y: 520 },
+    { x: 780, y: 180 },
+    { x: 980, y: 500 },
+    { x: 1180, y: 340 }
+  ],
+  overdrive_matrix: [
+    { x: 60, y: 360 },
+    { x: 300, y: 360 },
+    { x: 300, y: 140 },
+    { x: 880, y: 140 },
+    { x: 880, y: 580 },
+    { x: 500, y: 580 },
+    { x: 500, y: 360 },
+    { x: 1180, y: 360 }
+  ],
+  overdrive: [
+    { x: 60, y: 360 },
+    { x: 300, y: 360 },
+    { x: 300, y: 140 },
+    { x: 880, y: 140 },
+    { x: 880, y: 580 },
+    { x: 500, y: 580 },
+    { x: 500, y: 360 },
+    { x: 1180, y: 360 }
+  ],
+  fragile_core: [
+    { x: 60, y: 140 },
+    { x: 260, y: 140 },
+    { x: 260, y: 560 },
+    { x: 520, y: 560 },
+    { x: 520, y: 160 },
+    { x: 780, y: 160 },
+    { x: 780, y: 560 },
+    { x: 1000, y: 560 },
+    { x: 1000, y: 320 },
+    { x: 1180, y: 320 }
+  ],
+  hardcore: [
+    { x: 60, y: 140 },
+    { x: 260, y: 140 },
+    { x: 260, y: 560 },
+    { x: 520, y: 560 },
+    { x: 520, y: 160 },
+    { x: 780, y: 160 },
+    { x: 780, y: 560 },
+    { x: 1000, y: 560 },
+    { x: 1000, y: 320 },
+    { x: 1180, y: 320 }
+  ],
+  singularity_crisis: [
+    { x: 60, y: 220 },
+    { x: 420, y: 220 },
+    { x: 420, y: 130 },
+    { x: 940, y: 130 },
+    { x: 940, y: 580 },
+    { x: 300, y: 580 },
+    { x: 300, y: 380 },
+    { x: 1180, y: 380 }
+  ],
+  boss_rush: [
+    { x: 60, y: 220 },
+    { x: 420, y: 220 },
+    { x: 420, y: 130 },
+    { x: 940, y: 130 },
+    { x: 940, y: 580 },
+    { x: 300, y: 580 },
+    { x: 300, y: 380 },
+    { x: 1180, y: 380 }
+  ],
+  last_orbit: [
+    { x: 60, y: 140 },
+    { x: 340, y: 140 },
+    { x: 340, y: 360 },
+    { x: 160, y: 360 },
+    { x: 160, y: 580 },
+    { x: 620, y: 580 },
+    { x: 620, y: 220 },
+    { x: 880, y: 220 },
+    { x: 880, y: 480 },
+    { x: 1140, y: 480 },
+    { x: 1140, y: 360 }
+  ]
+};
+
 export class PathSystem {
-  public readonly waypoints: Point[];
-  public readonly segments: PathSegment[] = [];
-  public readonly totalLength: number;
-  public readonly corePosition: Point;
-  public readonly spawnPosition: Point;
+  public waypoints: Point[] = [];
+  public segments: PathSegment[] = [];
+  public totalLength: number = 0;
+  public corePosition: Point = { x: 1180, y: 360 };
+  public spawnPosition: Point = { x: 60, y: 160 };
 
-  constructor() {
-    this.waypoints = [
-      { x: 60, y: 140 },
-      { x: 340, y: 140 },
-      { x: 340, y: 360 },
-      { x: 160, y: 360 },
-      { x: 160, y: 580 },
-      { x: 620, y: 580 },
-      { x: 620, y: 220 },
-      { x: 880, y: 220 },
-      { x: 880, y: 480 },
-      { x: 1140, y: 480 },
-      { x: 1140, y: 360 }
-    ];
+  constructor(initialMapId: string = 'first_contact') {
+    this.loadMap(initialMapId);
+  }
 
+  public loadMap(mapId: string): void {
+    const points = MAP_WAYPOINTS[mapId] || MAP_WAYPOINTS.first_contact;
+    this.setWaypoints(points);
+  }
+
+  public setWaypoints(points: Point[]): void {
+    this.waypoints = points.map(p => ({ ...p }));
     this.spawnPosition = { ...this.waypoints[0] };
     this.corePosition = { ...this.waypoints[this.waypoints.length - 1] };
+    this.segments = [];
 
     let runningDistance = 0;
     for (let i = 0; i < this.waypoints.length - 1; i++) {
@@ -63,8 +166,8 @@ export class PathSystem {
    */
   public getPositionAtDistance(dist: number, out: Point): void {
     if (dist <= 0) {
-      out.x = this.waypoints[0].x;
-      out.y = this.waypoints[0].y;
+      out.x = this.waypoints[0]?.x ?? 0;
+      out.y = this.waypoints[0]?.y ?? 0;
       return;
     }
 
@@ -74,12 +177,11 @@ export class PathSystem {
       return;
     }
 
-    // Binary search or direct scan over few segments
     for (let i = 0; i < this.segments.length; i++) {
       const seg = this.segments[i];
       if (dist <= seg.endDistance) {
         const segDist = dist - seg.startDistance;
-        const t = segDist / seg.length;
+        const t = seg.length > 0 ? segDist / seg.length : 0;
         out.x = seg.p0.x + (seg.p1.x - seg.p0.x) * t;
         out.y = seg.p0.y + (seg.p1.y - seg.p0.y) * t;
         return;
@@ -116,4 +218,4 @@ export class PathSystem {
   }
 }
 
-export const GlobalPathSystem = new PathSystem();
+export const GlobalPathSystem = new PathSystem('first_contact');

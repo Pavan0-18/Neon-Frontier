@@ -11,17 +11,21 @@ export class EconomySystem {
 
   public onGameOver?: () => void;
   public onStateChange?: () => void;
+  public onCoreDamage?: () => void;
+
+  public bountyMult: number = 1.0;
 
   constructor() {
     this.reset();
   }
 
-  public reset(): void {
-    this.coreHealth = 100;
-    this.maxCoreHealth = 100;
-    this.credits = 750;
+  public reset(startCredits: number = 750, coreHealth: number = 100, bountyMult: number = 1.0): void {
+    this.coreHealth = coreHealth;
+    this.maxCoreHealth = coreHealth;
+    this.credits = startCredits;
     this.score = 0;
     this.totalKills = 0;
+    this.bountyMult = bountyMult;
     this.isGameOver = false;
     this.isVictory = false;
     this.notifyChange();
@@ -51,6 +55,10 @@ export class EconomySystem {
 
     this.coreHealth = Math.max(0, this.coreHealth - damage);
     this.notifyChange();
+
+    if (this.onCoreDamage) {
+      this.onCoreDamage();
+    }
 
     if (this.coreHealth <= 0) {
       this.isGameOver = true;

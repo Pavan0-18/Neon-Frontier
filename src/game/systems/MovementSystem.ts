@@ -75,7 +75,12 @@ export class MovementSystem {
             // Phase Shift: 75% defense for 3s
             this.entityMgr.enemyBossPhaseActive[slot] = 1;
             this.entityMgr.spawnParticles(this.entityMgr.enemyX[slot], this.entityMgr.enemyY[slot], 0xb026ff, 20, 1.5);
-            this.entityMgr.spawnFloatingText(this.entityMgr.enemyX[slot], this.entityMgr.enemyY[slot] - 20, 'PHASE SHIELD', '#b026ff');
+            this.entityMgr.spawnFloatingText(
+              this.entityMgr.enemyX[slot],
+              this.entityMgr.enemyY[slot] - 20,
+              'PHASE SHIELD',
+              '#b026ff'
+            );
             timer = 7;
           } else if (type === 'boss_mothership') {
             // Spawn swarm cluster around boss
@@ -101,13 +106,7 @@ export class MovementSystem {
         const coreDmg = this.entityMgr.enemyCoreDamage[slot];
         statsOut.coreDamageTaken += coreDmg;
         GlobalSoundFX.playCoreDamaged();
-        this.entityMgr.spawnParticles(
-          this.entityMgr.enemyX[slot],
-          this.entityMgr.enemyY[slot],
-          0xff0055,
-          20,
-          2.0
-        );
+        this.entityMgr.spawnParticles(this.entityMgr.enemyX[slot], this.entityMgr.enemyY[slot], 0xff0055, 20, 2.0);
         this.entityMgr.killEnemy(slot);
         continue;
       }
@@ -138,7 +137,6 @@ export class MovementSystem {
       const targetIdx = this.entityMgr.projTargetIdx[slot];
       const speed = this.entityMgr.projSpeed[slot] || 700;
       const step = speed * dt;
-      const projType = this.entityMgr.projType[slot];
       let hasHit = false;
 
       // Homing behavior for direct weapons (pulse, tesla, cryo, railgun, flak)
@@ -294,7 +292,13 @@ export class MovementSystem {
     // Flak Pellet Hit (Type 5)
     if (projType === 5) {
       this.damageSingleEnemy(enemySlot, rawDamage, statsOut);
-      this.entityMgr.spawnParticles(this.entityMgr.enemyX[enemySlot], this.entityMgr.enemyY[enemySlot], 0x34d399, 5, 0.9);
+      this.entityMgr.spawnParticles(
+        this.entityMgr.enemyX[enemySlot],
+        this.entityMgr.enemyY[enemySlot],
+        0x34d399,
+        5,
+        0.9
+      );
       GlobalSoundFX.playHit();
       return;
     }

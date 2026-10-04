@@ -15,10 +15,10 @@ export interface EnemyDefinition {
   name: string;
   baseHealth: number;
   baseSpeed: number; // pixels per second
-  bounty: number;    // credits rewarded
+  bounty: number; // credits rewarded
   scoreValue: number;
-  coreDamage: number;// damage to player energy core if reached
-  radius: number;    // collision / visual radius
+  coreDamage: number; // damage to player energy core if reached
+  radius: number; // collision / visual radius
   color: number;
   colorHex: string;
   hasShield?: boolean;

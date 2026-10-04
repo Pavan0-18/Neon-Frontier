@@ -5,6 +5,9 @@ import { MovementSystem, CombatStatsEvent } from './MovementSystem';
 
 export class CombatSystem {
   public useSpatialGrid: boolean = true;
+  public towerRateMult: number = 1.0;
+  public towerDamageMult: number = 1.0;
+
   private readonly entityMgr: EntityManager;
   private readonly spatialGrid: SpatialGrid;
   private readonly movementSystem: MovementSystem;
@@ -37,7 +40,7 @@ export class CombatSystem {
         continue;
       }
 
-      const activeInterval = isOvercharged ? tower.attackInterval * 0.6 : tower.attackInterval;
+      const activeInterval = (isOvercharged ? tower.attackInterval * 0.6 : tower.attackInterval) / this.towerRateMult;
 
       // Special continuous thermal beam logic for Photon Laser
       if (tower.type === 'laser') {
@@ -65,7 +68,7 @@ export class CombatSystem {
           }
           if (tower.cooldownTimer <= 0) {
             const ramp = Math.min(tower.currentStats.beamRampUp || 2.5, 1 + tower.laserLockDuration * 0.4);
-            const dmg = (tower.damage * (isOvercharged ? 1.35 : 1)) * ramp;
+            const dmg = tower.damage * (isOvercharged ? 1.35 : 1) * ramp * this.towerDamageMult;
             this.movementSystem.damageSingleEnemy(target, dmg, statsOut);
             if (this.entityMgr.enemyActive[target] === 0 || this.entityMgr.enemyHealth[target] <= 0) {
               tower.laserTargetIdx = -1;
@@ -211,6 +214,7 @@ export class CombatSystem {
     const targetX = this.entityMgr.enemyX[targetIdx];
     const targetY = this.entityMgr.enemyY[targetIdx];
     const stats = tower.currentStats;
+    const finalDamage = tower.damage * this.towerDamageMult;
 
     switch (tower.type) {
       case 'pulse': {
@@ -221,7 +225,7 @@ export class CombatSystem {
           targetIdx,
           targetX,
           targetY,
-          tower.damage,
+          finalDamage,
           stats.projectileSpeed || 650
         );
         GlobalSoundFX.playPulseShoot();
@@ -235,7 +239,7 @@ export class CombatSystem {
           targetIdx,
           targetX,
           targetY,
-          tower.damage,
+          finalDamage,
           stats.projectileSpeed || 1100,
           0,
           stats.chainCount || 3,
@@ -253,7 +257,7 @@ export class CombatSystem {
           targetIdx,
           targetX,
           targetY,
-          tower.damage,
+          finalDamage,
           stats.projectileSpeed || 400,
           stats.splashRadius || 100
         );
@@ -268,7 +272,7 @@ export class CombatSystem {
           targetIdx,
           targetX,
           targetY,
-          tower.damage,
+          finalDamage,
           stats.projectileSpeed || 600,
           0,
           0,
@@ -288,7 +292,7 @@ export class CombatSystem {
           targetIdx,
           targetX,
           targetY,
-          tower.damage,
+          finalDamage,
           stats.projectileSpeed || 2200
         );
         GlobalSoundFX.playRailgun();
@@ -313,7 +317,7 @@ export class CombatSystem {
             targetIdx,
             tx,
             ty,
-            tower.damage,
+            finalDamage,
             spd
           );
         }
@@ -328,7 +332,7 @@ export class CombatSystem {
           targetIdx,
           targetX,
           targetY,
-          tower.damage,
+          finalDamage,
           stats.projectileSpeed || 420,
           stats.splashRadius || 110,
           0,

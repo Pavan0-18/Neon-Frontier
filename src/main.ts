@@ -17,10 +17,38 @@ window.addEventListener('DOMContentLoaded', () => {
       const uiManager = new UIManager(engine, scene);
       scene.uiManager = uiManager;
 
-      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager; GlobalRNG: typeof GlobalRNG }).gameEngine = engine;
-      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager; GlobalRNG: typeof GlobalRNG }).defenseScene = scene;
-      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager; GlobalRNG: typeof GlobalRNG }).uiManager = uiManager;
-      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager; GlobalRNG: typeof GlobalRNG }).GlobalRNG = GlobalRNG;
+      (
+        window as unknown as {
+          gameEngine: GameEngine;
+          defenseScene: DefenseScene;
+          uiManager: UIManager;
+          GlobalRNG: typeof GlobalRNG;
+        }
+      ).gameEngine = engine;
+      (
+        window as unknown as {
+          gameEngine: GameEngine;
+          defenseScene: DefenseScene;
+          uiManager: UIManager;
+          GlobalRNG: typeof GlobalRNG;
+        }
+      ).defenseScene = scene;
+      (
+        window as unknown as {
+          gameEngine: GameEngine;
+          defenseScene: DefenseScene;
+          uiManager: UIManager;
+          GlobalRNG: typeof GlobalRNG;
+        }
+      ).uiManager = uiManager;
+      (
+        window as unknown as {
+          gameEngine: GameEngine;
+          defenseScene: DefenseScene;
+          uiManager: UIManager;
+          GlobalRNG: typeof GlobalRNG;
+        }
+      ).GlobalRNG = GlobalRNG;
 
       console.log('⚡ NEON FRONTIER: LAST ORBIT initialized successfully.');
     } else {

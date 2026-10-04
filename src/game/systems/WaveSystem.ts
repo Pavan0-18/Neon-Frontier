@@ -17,6 +17,10 @@ export class WaveSystem {
   public isAutoStartActive: boolean = true;
   public totalWaves: number = 50;
 
+  public enemyCountMult: number = 1.0;
+  public enemySpeedMult: number = 1.0;
+  public enemyHpMult: number = 1.0;
+
   private entityMgr: EntityManager;
   private activeSpawners: ActiveWaveSpawner[] = [];
   public currentWaveDef: WaveDefinition | null = null;
@@ -46,26 +50,28 @@ export class WaveSystem {
 
     // Initialize spawners for this wave
     for (const group of this.currentWaveDef.groups) {
+      const scaledCount = Math.max(1, Math.round(group.count * this.enemyCountMult));
       this.activeSpawners.push({
-        group,
+        group: {
+          ...group,
+          count: scaledCount,
+          hpMultiplier: (group.hpMultiplier || 1) * this.enemyHpMult,
+          speedMultiplier: (group.speedMultiplier || 1) * this.enemySpeedMult
+        },
         spawnedCount: 0,
         timeSinceLastSpawn: group.interval, // trigger first immediately after initial delay
         delayRemaining: group.initialDelay
       });
     }
 
-    if (this.currentWaveDef.isBossWave) {
+    if (this.currentWaveDef.isBossRound) {
       GlobalSoundFX.playBossKlaxon();
     } else {
       GlobalSoundFX.playWaveAlarm();
     }
 
     if (this.onWaveStart) {
-      this.onWaveStart(
-        this.currentWaveNumber,
-        !!this.currentWaveDef.isBossWave,
-        this.currentWaveDef.bossName
-      );
+      this.onWaveStart(this.currentWaveNumber, !!this.currentWaveDef.isBossRound, this.currentWaveDef.bossName);
     }
 
     return true;
@@ -142,8 +148,17 @@ export class WaveSystem {
     }
   }
 
-  public reset(): void {
+  public reset(
+    totalWaves: number = 50,
+    enemyCountMult: number = 1.0,
+    enemySpeedMult: number = 1.0,
+    enemyHpMult: number = 1.0
+  ): void {
     this.currentWaveIndex = 0;
+    this.totalWaves = totalWaves;
+    this.enemyCountMult = enemyCountMult;
+    this.enemySpeedMult = enemySpeedMult;
+    this.enemyHpMult = enemyHpMult;
     this.waveInProgress = false;
     this.waveCompleted = false;
     this.autoStartCountdown = 10;

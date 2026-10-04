@@ -182,7 +182,9 @@ export class PerformanceMonitor {
 
     let heapMb: number | undefined = undefined;
     if ((performance as unknown as { memory?: { usedJSHeapSize: number } }).memory) {
-      heapMb = Math.round((performance as unknown as { memory: { usedJSHeapSize: number } }).memory.usedJSHeapSize / (1024 * 1024));
+      heapMb = Math.round(
+        (performance as unknown as { memory: { usedJSHeapSize: number } }).memory.usedJSHeapSize / (1024 * 1024)
+      );
     }
 
     return {

@@ -13,7 +13,8 @@ export class SoundFX {
 
   private initContext(): void {
     if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
         this.masterGain = this.ctx.createGain();
@@ -386,7 +387,7 @@ export class SoundFX {
     this.initContext();
     if (!this.ctx || !this.masterGain) return;
 
-    const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+    const notes = [261.63, 329.63, 392.0, 523.25, 659.25];
     const now = this.ctx.currentTime;
 
     notes.forEach((freq, idx) => {
@@ -414,7 +415,7 @@ export class SoundFX {
     this.initContext();
     if (!this.ctx || !this.masterGain) return;
 
-    const notes = [392.00, 349.23, 311.13, 261.63, 196.00];
+    const notes = [392.0, 349.23, 311.13, 261.63, 196.0];
     const now = this.ctx.currentTime;
 
     notes.forEach((freq, idx) => {
@@ -456,6 +457,29 @@ export class SoundFX {
 
     osc.start(now);
     osc.stop(now + 0.03);
+  }
+
+  public playError(): void {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx || !this.masterGain) return;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const now = this.ctx.currentTime;
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.setValueAtTime(140, now + 0.08);
+
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.linearRampToValueAtTime(0.01, now + 0.16);
+
+    osc.connect(gain);
+    gain.connect(this.masterGain);
+
+    osc.start(now);
+    osc.stop(now + 0.16);
   }
 }
 

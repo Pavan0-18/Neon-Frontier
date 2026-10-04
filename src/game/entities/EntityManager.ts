@@ -1,7 +1,6 @@
 import { EnemyType, ENEMY_DEFINITIONS } from '../../data/enemies';
 import { TowerType, TargetingStrategy, TOWER_DEFINITIONS, TowerLevelStats } from '../../data/towers';
 import { DefenseNodeType } from '../../data/nodes';
-import { SpatialGrid } from '../spatial/SpatialGrid';
 import { GlobalPathSystem, Point } from '../systems/PathSystem';
 
 export interface TowerEntity {
@@ -84,9 +83,19 @@ export class EntityManager {
 
   // Type keys mapping
   public readonly enemyTypeKeys: EnemyType[] = [
-    'scout', 'drone', 'tank', 'shield', 'regenerator', 'swarm', 'phantom',
-    'boss_behemoth', 'boss_warp_lord', 'boss_mothership'
+    'scout',
+    'drone',
+    'tank',
+    'shield',
+    'regenerator',
+    'swarm',
+    'phantom',
+    'boss_behemoth',
+    'boss_warp_lord',
+    'boss_mothership'
   ];
+
+  public readonly projTypeKeys: string[] = ['pulse', 'tesla', 'mortar', 'cryo', 'railgun', 'flak', 'vortex', 'spark'];
 
   // --- PROJECTILES (Data-Oriented TypedArrays) ---
   public readonly maxProjectiles: number = 4000;
@@ -390,7 +399,10 @@ export class EntityManager {
     return tower;
   }
 
-  public upgradeTower(tower: TowerEntity): boolean {
+  public upgradeTower(towerOrId: TowerEntity | number): boolean {
+    const tower = typeof towerOrId === 'number' ? this.towers.find(t => t.id === towerOrId) : towerOrId;
+    if (!tower) return false;
+
     const def = TOWER_DEFINITIONS[tower.type];
     if (tower.level >= def.levels.length) {
       return false; // Already max level
@@ -423,7 +435,8 @@ export class EntityManager {
     }
   }
 
-  public removeTower(id: number): TowerEntity | null {
+  public removeTower(towerOrId: TowerEntity | number): TowerEntity | null {
+    const id = typeof towerOrId === 'number' ? towerOrId : towerOrId.id;
     const idx = this.towers.findIndex(t => t.id === id);
     if (idx !== -1) {
       const removed = this.towers.splice(idx, 1)[0];

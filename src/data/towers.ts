@@ -1,12 +1,4 @@
-export type TowerType =
-  | 'pulse'
-  | 'tesla'
-  | 'mortar'
-  | 'cryo'
-  | 'railgun'
-  | 'laser'
-  | 'flak'
-  | 'vortex';
+export type TowerType = 'pulse' | 'tesla' | 'mortar' | 'cryo' | 'railgun' | 'laser' | 'flak' | 'vortex';
 
 export type TargetingStrategy = 'first' | 'last' | 'closest' | 'strongest' | 'weakest';
 
@@ -19,15 +11,15 @@ export interface TowerLevelStats {
   sellValue: number;
   // Special attributes
   splashRadius?: number; // For mortar
-  chainCount?: number;   // For tesla
-  chainRange?: number;   // For tesla
+  chainCount?: number; // For tesla
+  chainRange?: number; // For tesla
   chainFalloff?: number; // For tesla (e.g. 0.7 = 70% damage on next bounce)
-  slowFactor?: number;   // For cryo (e.g. 0.5 = 50% speed)
+  slowFactor?: number; // For cryo (e.g. 0.5 = 50% speed)
   slowDuration?: number; // For cryo (in seconds)
   projectileSpeed?: number;
-  pelletCount?: number;  // For flak shotgun
-  pullForce?: number;    // For vortex singularity
-  beamRampUp?: number;   // For laser beam continuous ramp
+  pelletCount?: number; // For flak shotgun
+  pullForce?: number; // For vortex singularity
+  beamRampUp?: number; // For laser beam continuous ramp
 }
 
 export interface TowerDefinition {
@@ -184,7 +176,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     id: 'cryo',
     name: 'Cryo Beacon',
     role: 'Crowd Deceleration',
-    description: 'Sub-zero tachyon emitter. Impairs hostile velocity significantly while inflicting light thermal decay.',
+    description:
+      'Sub-zero tachyon emitter. Impairs hostile velocity significantly while inflicting light thermal decay.',
     baseCost: 140,
     color: 0x00ffcc,
     colorHex: '#00ffcc',
@@ -210,7 +203,7 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
         attackInterval: 0.75,
         upgradeCost: 230,
         sellValue: 203,
-        slowFactor: 0.40, // 60% slow
+        slowFactor: 0.4, // 60% slow
         slowDuration: 3.5,
         projectileSpeed: 640
       },
@@ -231,7 +224,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     id: 'railgun',
     name: 'Railgun',
     role: 'Hyper-Velocity Sniper',
-    description: 'Kinetic hyper-velocity penetrator. Extreme range and devastating damage against heavy tanks and bosses.',
+    description:
+      'Kinetic hyper-velocity penetrator. Extreme range and devastating damage against heavy tanks and bosses.',
     baseCost: 260,
     color: 0xff0055,
     colorHex: '#ff0055',
@@ -272,7 +266,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     id: 'laser',
     name: 'Photon Beam',
     role: 'Thermal Melt Beam',
-    description: 'Continuous concentrated thermal laser. Melts through armor and ramps up damage the longer it fires at a target.',
+    description:
+      'Continuous concentrated thermal laser. Melts through armor and ramps up damage the longer it fires at a target.',
     baseCost: 185,
     color: 0xff2200,
     colorHex: '#ff2200',
@@ -313,7 +308,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     id: 'flak',
     name: 'Orbital Flak',
     role: 'Anti-Swarm Burst',
-    description: 'High-caliber cluster disrupter. Blasts a spread of shrapnel pellets, instantly vaporizing swarms and scouts.',
+    description:
+      'High-caliber cluster disrupter. Blasts a spread of shrapnel pellets, instantly vaporizing swarms and scouts.',
     baseCost: 150,
     color: 0x34d399,
     colorHex: '#34d399',
@@ -357,7 +353,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     id: 'vortex',
     name: 'Singularity Well',
     role: 'Gravitational Distortion',
-    description: 'Artificial micro-black-hole projector. Pulls hostiles backward along the conduit and crushes dense clusters.',
+    description:
+      'Artificial micro-black-hole projector. Pulls hostiles backward along the conduit and crushes dense clusters.',
     baseCost: 240,
     color: 0x7c3aed,
     colorHex: '#7c3aed',
