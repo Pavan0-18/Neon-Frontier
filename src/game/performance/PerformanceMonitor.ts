@@ -81,12 +81,15 @@ export class PerformanceMonitor {
     this.renderTimes = new Float32Array(this.historyCapacity);
   }
 
-  public beginFrame(): void {
+  public beginFrame(deltaMs?: number): void {
     const now = performance.now();
-    if (this.lastFrameTimestamp > 0) {
-      const delta = now - this.lastFrameTimestamp;
-      this.recordFrameDelta(delta);
-    }
+    const frameDelta =
+      deltaMs !== undefined && deltaMs > 0
+        ? deltaMs
+        : this.lastFrameTimestamp > 0
+          ? now - this.lastFrameTimestamp
+          : 16.66;
+    this.recordFrameDelta(frameDelta);
     this.lastFrameTimestamp = now;
     this.frameStartTime = now;
   }
@@ -126,7 +129,7 @@ export class PerformanceMonitor {
 
   private recordFrameDelta(delta: number): void {
     this.historyIndex = (this.historyIndex + 1) % this.historyCapacity;
-    this.frameTimes[this.historyIndex] = delta;
+    this.frameTimes[this.historyIndex] = Math.max(0.1, delta);
     if (this.historyCount < this.historyCapacity) {
       this.historyCount++;
     }
@@ -227,7 +230,9 @@ export class PerformanceMonitor {
   }
 
   private recordBenchmarkFrame(enemies: number, towers: number, projectiles: number): void {
-    const curFt = this.frameTimes[this.historyIndex];
+    const measuredFrameTime = this.currentSimDuration + this.currentRenderDuration;
+    const historyFt = this.frameTimes[this.historyIndex];
+    const curFt = historyFt > 1 ? historyFt : Math.max(0.5, measuredFrameTime);
     this.benchFrameTimes.push(curFt);
     this.benchSimTimes.push(this.currentSimDuration);
     this.benchTargetingTimes.push(this.currentTargetingDuration);

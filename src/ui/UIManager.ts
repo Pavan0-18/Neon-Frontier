@@ -12,9 +12,17 @@ export class UIManager {
   // 1. Main Menu Screen
   private mainMenuScreen!: HTMLElement;
   private btnMenuChallenge!: HTMLElement;
+  private btnMenuTutorial!: HTMLElement;
   private btnMenuArmory!: HTMLElement;
   private btnMenuProfile!: HTMLElement;
   private btnMenuSettings!: HTMLElement;
+
+  // Tutorial Modal
+  private tutorialModal!: HTMLElement;
+  private btnCloseTutorial!: HTMLElement;
+  private btnSkipTutorial!: HTMLElement;
+  private btnFinishTutorial!: HTMLElement;
+  private btnHudTutorial!: HTMLElement;
 
   // 2. Challenge / Level Select Screen & Navigation Bar
   private challengeSelectScreen!: HTMLElement;
@@ -173,15 +181,23 @@ export class UIManager {
     this.bindKeyboardShortcuts();
     this.renderBuildTray();
     this.initMainMenu();
+    this.checkFirstTimeTutorial();
   }
 
   private cacheDOMElements(): void {
     // 1. Main Menu
     this.mainMenuScreen = document.getElementById('main-menu-screen')!;
     this.btnMenuChallenge = document.getElementById('btn-menu-challenge')!;
+    this.btnMenuTutorial = document.getElementById('btn-menu-tutorial')!;
     this.btnMenuArmory = document.getElementById('btn-menu-armory')!;
     this.btnMenuProfile = document.getElementById('btn-menu-profile')!;
     this.btnMenuSettings = document.getElementById('btn-menu-settings')!;
+
+    // Tutorial Modal
+    this.tutorialModal = document.getElementById('tutorial-modal')!;
+    this.btnCloseTutorial = document.getElementById('btn-close-tutorial')!;
+    this.btnSkipTutorial = document.getElementById('btn-skip-tutorial')!;
+    this.btnFinishTutorial = document.getElementById('btn-finish-tutorial')!;
 
     // 2. Challenge Select & Level Nav Bar
     this.challengeSelectScreen = document.getElementById('challenge-select-screen')!;
@@ -223,6 +239,7 @@ export class UIManager {
     this.gameHudHeader = document.getElementById('game-hud-header')!;
     this.btnHudMenu = document.getElementById('btn-hud-menu')!;
     this.btnHudLevels = document.getElementById('btn-hud-levels')!;
+    this.btnHudTutorial = document.getElementById('btn-hud-tutorial')!;
     this.hudMissionName = document.getElementById('hud-mission-name')!;
     this.coreHealthText = document.getElementById('core-health-text')!;
     this.creditsText = document.getElementById('credits-text')!;
@@ -518,6 +535,39 @@ export class UIManager {
   }
 
   // ==========================================
+  // TUTORIAL & HOW TO PLAY
+  // ==========================================
+  public checkFirstTimeTutorial(): void {
+    try {
+      if (!localStorage.getItem('neon_frontier_tutorial_seen')) {
+        this.openTutorial();
+      }
+    } catch {}
+  }
+
+  public openTutorial(): void {
+    this.closeAllMenus();
+    this.tutorialModal?.classList.remove('hidden');
+    GlobalSoundFX.playUIClick();
+  }
+
+  public skipTutorial(): void {
+    try {
+      localStorage.setItem('neon_frontier_tutorial_seen', 'true');
+    } catch {}
+    this.tutorialModal?.classList.add('hidden');
+    GlobalSoundFX.playUIClick();
+  }
+
+  public finishTutorial(): void {
+    try {
+      localStorage.setItem('neon_frontier_tutorial_seen', 'true');
+    } catch {}
+    this.tutorialModal?.classList.add('hidden');
+    GlobalSoundFX.playUIClick();
+  }
+
+  // ==========================================
   // FREE-PLACEMENT BUILD TRAY
   // ==========================================
   public renderBuildTray(): void {
@@ -585,9 +635,16 @@ export class UIManager {
   private bindEvents(): void {
     // 1. Menu Nav
     this.btnMenuChallenge?.addEventListener('click', () => this.openChallengeSelect());
+    this.btnMenuTutorial?.addEventListener('click', () => this.openTutorial());
     this.btnMenuArmory?.addEventListener('click', () => this.openArmory());
     this.btnMenuProfile?.addEventListener('click', () => this.openProfile());
     this.btnMenuSettings?.addEventListener('click', () => this.togglePerfLab());
+
+    // Tutorial Modal Actions
+    this.btnHudTutorial?.addEventListener('click', () => this.openTutorial());
+    this.btnCloseTutorial?.addEventListener('click', () => this.skipTutorial());
+    this.btnSkipTutorial?.addEventListener('click', () => this.skipTutorial());
+    this.btnFinishTutorial?.addEventListener('click', () => this.finishTutorial());
 
     // 2. Carousel & Level Nav
     this.btnChallengeBack?.addEventListener('click', () => this.initMainMenu());
@@ -708,6 +765,7 @@ export class UIManager {
         this.scene.cancelPlacement();
         return;
       }
+      this.renderBuildTray();
       this.buildTrayMenu.classList.toggle('hidden');
       this.btnMainBuild.classList.toggle('active', !this.buildTrayMenu.classList.contains('hidden'));
       GlobalSoundFX.playUIClick();
@@ -965,13 +1023,14 @@ export class UIManager {
 
   public closeAllMenus(): void {
     this.closeContextNodeMenu();
-    this.armoryModal.classList.add('hidden');
-    this.profileModal.classList.add('hidden');
-    this.perfLabModal.classList.add('hidden');
-    this.commandDrawer.classList.add('hidden');
-    this.btnCommandToggle.classList.remove('active');
-    this.buildTrayMenu.classList.add('hidden');
-    this.btnMainBuild.classList.remove('active');
+    this.tutorialModal?.classList.add('hidden');
+    this.armoryModal?.classList.add('hidden');
+    this.profileModal?.classList.add('hidden');
+    this.perfLabModal?.classList.add('hidden');
+    this.commandDrawer?.classList.add('hidden');
+    this.btnCommandToggle?.classList.remove('active');
+    this.buildTrayMenu?.classList.add('hidden');
+    this.btnMainBuild?.classList.remove('active');
     if (this.btnBuildLabel) this.btnBuildLabel.textContent = 'Build Tower';
   }
 
@@ -1009,6 +1068,7 @@ export class UIManager {
         if (this.scene.selectedBuildType !== null) {
           this.scene.cancelPlacement();
         } else {
+          this.renderBuildTray();
           this.buildTrayMenu.classList.toggle('hidden');
           this.btnMainBuild.classList.toggle('active', !this.buildTrayMenu.classList.contains('hidden'));
         }
@@ -1180,6 +1240,21 @@ export class UIManager {
           this.cnmBtnUpgrade.disabled = eco.credits < t.currentStats.upgradeCost;
         }
       }
+    }
+
+    if (this.buildTrayMenu && !this.buildTrayMenu.classList.contains('hidden')) {
+      const cards = this.buildTrayGrid.querySelectorAll('.btn-tray-card');
+      const profile = ProgressionManager.getProfile();
+      cards.forEach(cardEl => {
+        const tType = (cardEl as HTMLElement).dataset.towerType as TowerType;
+        if (tType && TOWER_DEFINITIONS[tType]) {
+          const def = TOWER_DEFINITIONS[tType];
+          const isUnlocked = profile.unlockedTowers.includes(tType);
+          const canAfford = eco.credits >= def.baseCost;
+          cardEl.classList.toggle('locked', !isUnlocked);
+          cardEl.classList.toggle('disabled', !canAfford && isUnlocked);
+        }
+      });
     }
   }
 

@@ -1257,6 +1257,65 @@ body {
   text-align: center;
 }
 
+/* Tutorial / How to Play Modal */
+.tutorial-card {
+  max-width: 620px;
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+
+.tutorial-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.tutorial-step {
+  display: flex;
+  gap: 10px;
+  background: var(--panel-sub);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 12px;
+  align-items: flex-start;
+}
+
+.step-badge {
+  background: var(--accent-blue);
+  color: #050814;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 11px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-body h4 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+.step-body p {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.tutorial-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .debrief-title {
   font-size: 22px;
   font-weight: 800;
@@ -1444,10 +1503,23 @@ body {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 600px) {
+  #game-app {
+    height: 100vh;
+    height: 100dvh;
+  }
+
   .game-hud {
     padding: 0 8px;
-    height: 42px;
+    height: 38px;
+  }
+  .hud-top-left {
+    gap: 4px;
+    font-size: 12px;
+  }
+  .hud-level-btn {
+    padding: 3px 6px;
+    font-size: 11px;
   }
   .hud-stat-item {
     gap: 3px;
@@ -1456,38 +1528,97 @@ body {
     display: none;
   }
   .hud-top-right {
-    gap: 10px;
+    gap: 8px;
+  }
+  .btn-speed {
+    padding: 3px 6px;
+    font-size: 11px;
+    min-width: 26px;
+  }
+
+  /* Safe Area / Bottom positioning */
+  .hud-build-trigger {
+    bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  }
+  .btn-build-main {
+    padding: 7px 14px;
+    font-size: 12px;
+    border-radius: 16px;
+  }
+
+  .hud-abilities-container {
+    bottom: max(12px, env(safe-area-inset-bottom, 12px));
+    left: max(8px, env(safe-area-inset-left, 8px));
+  }
+  .btn-command-trigger {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .hud-wave-action {
+    bottom: max(12px, env(safe-area-inset-bottom, 12px));
+    right: max(8px, env(safe-area-inset-right, 8px));
+  }
+  .btn-start-wave {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .wave-countdown-text {
+    font-size: 10px;
   }
 
   .build-tray-popover {
     width: 95vw;
+    max-width: 380px;
+    max-height: calc(100dvh - 90px);
+    bottom: calc(100% + 8px);
+    padding: 8px;
+  }
+  .build-tray-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+  }
+  .btn-tray-card {
+    padding: 5px 7px;
+    font-size: 11px;
   }
 
-  .hud-build-trigger {
-    bottom: 12px;
-  }
-  .btn-build-main {
-    padding: 8px 16px;
-    font-size: 13px;
-  }
-
-  .hud-abilities-container {
-    bottom: 12px;
-    left: 12px;
-  }
-  .hud-wave-action {
-    bottom: 12px;
-    right: 12px;
+  .command-drawer-popover {
+    width: 220px;
+    max-height: calc(100dvh - 90px);
+    bottom: calc(100% + 8px);
   }
 
   .context-inspector-card {
-    width: 240px;
+    width: 230px;
+    padding: 10px;
+  }
+
+  .tutorial-card {
+    padding: 14px;
+    max-height: 88dvh;
+  }
+  .tutorial-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .tutorial-step {
+    padding: 8px 10px;
+  }
+
+  .armory-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .armory-list {
+    max-height: 140px;
   }
 
   .mission-card {
-    padding: 16px;
+    padding: 14px;
   }
   .game-logo {
-    font-size: 28px;
+    font-size: 26px;
   }
 }

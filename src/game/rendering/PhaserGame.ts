@@ -466,6 +466,7 @@ export class DefenseScene extends Phaser.Scene {
     const dt = delta / 1000;
 
     // 1. Advance Game Simulation via Engine
+    this.engine.perfMonitor.beginFrame(delta);
     this.engine.update(dt);
 
     // 2. Render dynamic game state
@@ -473,7 +474,14 @@ export class DefenseScene extends Phaser.Scene {
     this.renderFrame(dt);
     this.engine.perfMonitor.endRender();
 
-    // 3. Update HUD telemetry
+    // 3. Mark end frame for performance telemetry & benchmark
+    this.engine.perfMonitor.endFrame(
+      this.engine.entityMgr.activeEnemyCount,
+      this.engine.entityMgr.towers.length,
+      this.engine.entityMgr.activeProjCount
+    );
+
+    // 4. Update HUD telemetry
     if (this.uiManager) {
       this.uiManager.tickTelemetry(dt);
     }

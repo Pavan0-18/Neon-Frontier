@@ -128,12 +128,6 @@ export class GameEngine {
     if (this.accumulator > this.fixedDt) {
       this.accumulator = 0;
     }
-
-    this.perfMonitor.endFrame(
-      this.entityMgr.activeEnemyCount,
-      this.entityMgr.towers.length,
-      this.entityMgr.activeProjCount
-    );
   }
 
   /**

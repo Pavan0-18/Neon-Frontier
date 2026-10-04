@@ -41,6 +41,9 @@
               </button>
 
               <div class="menu-sub-actions">
+                <button id="btn-menu-tutorial" class="btn-secondary-action">
+                  <span>How to Play</span>
+                </button>
                 <button id="btn-menu-armory" class="btn-secondary-action">
                   <span>Tower Guide</span>
                 </button>
@@ -179,6 +182,8 @@
               <span id="hud-mission-name">Level 1: First Contact</span>
               <span class="level-caret">▾</span>
             </button>
+            <span class="hud-divider">/</span>
+            <button id="btn-hud-tutorial" class="hud-text-btn" title="How to Play / Tactical Guide">Help</button>
           </div>
 
           <!-- Top Right Telemetry: Pure Typography & Compact Controls -->
@@ -394,15 +399,72 @@
             <h2 class="debrief-title text-red">Base Core Destroyed</h2>
             <div class="debrief-stars" id="go-rating">★☆☆☆☆</div>
 
-            <div class="debrief-stats">
-              <div>Waves Survived: <strong id="go-wave">4 / 10</strong></div>
-              <div>Defeated: <strong id="go-kills">65</strong></div>
-              <div>Final Score: <strong id="go-score">3,800</strong></div>
-            </div>
-
             <div class="debrief-buttons">
               <button id="btn-restart-game" class="btn-primary">Try Again</button>
               <button id="btn-return-menu-go" class="btn-secondary">Level Select</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9. TUTORIAL & HOW TO PLAY MODAL -->
+        <div id="tutorial-modal" class="modal-screen hidden">
+          <div class="modal-card tutorial-card">
+            <div class="modal-header">
+              <h2>How to Play // Tactical Guide</h2>
+              <button id="btn-close-tutorial" class="btn-close">&times;</button>
+            </div>
+
+            <div class="tutorial-grid">
+              <div class="tutorial-step">
+                <div class="step-badge">1</div>
+                <div class="step-body">
+                  <h4>Protect the Core ⚡</h4>
+                  <p>
+                    Hostiles march along the illuminated pathway toward your central Energy Core. Each enemy that
+                    breaches drains Core energy. Don't let health reach zero!
+                  </p>
+                </div>
+              </div>
+
+              <div class="tutorial-step">
+                <div class="step-badge">2</div>
+                <div class="step-body">
+                  <h4>Free Placement Defense ◈</h4>
+                  <p>
+                    Click <strong>+ Build Tower</strong> (or press keys <strong>1 - 8</strong>) to select a tower, then
+                    click anywhere on the arena grid outside the enemy path to construct.
+                  </p>
+                </div>
+              </div>
+
+              <div class="tutorial-step">
+                <div class="step-badge">3</div>
+                <div class="step-body">
+                  <h4>Upgrades & Target Priority ⛭</h4>
+                  <p>
+                    Click any built tower on the map to open its inspector: <strong>Upgrade [U]</strong> for higher
+                    damage/range, <strong>Sell [X]</strong> to refund credits, or toggle targeting priority (First,
+                    Strongest, Closest).
+                  </p>
+                </div>
+              </div>
+
+              <div class="tutorial-step">
+                <div class="step-badge">4</div>
+                <div class="step-body">
+                  <h4>Tactical Support Commands ⚡</h4>
+                  <p>
+                    Trigger emergency abilities in swarms: <strong>[Q] EMP Blast</strong> (global stun),
+                    <strong>[E] Air Strike</strong> (1,500 AoE bomb), or <strong>[R] Supercharge</strong> (+50% attack
+                    rate).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="tutorial-actions-row">
+              <button id="btn-skip-tutorial" class="btn-secondary">Skip Tutorial</button>
+              <button id="btn-finish-tutorial" class="btn-primary">Got It, Deploy!</button>
             </div>
           </div>
         </div>

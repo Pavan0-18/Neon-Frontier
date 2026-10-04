@@ -176,10 +176,17 @@ export class CombatSystem {
         }
       }
     } else if (strategy === 'closest') {
-      let minDistSq = Math.hypot(this.entityMgr.enemyX[bestSlot] - tx, this.entityMgr.enemyY[bestSlot] - ty);
+      const eX = this.entityMgr.enemyX;
+      const eY = this.entityMgr.enemyY;
+      const dx0 = eX[bestSlot] - tx;
+      const dy0 = eY[bestSlot] - ty;
+      let minDistSq = dx0 * dx0 + dy0 * dy0;
+
       for (let i = 1; i < this.candidateCount; i++) {
         const slot = this.candidateIndices[i];
-        const dSq = Math.hypot(this.entityMgr.enemyX[slot] - tx, this.entityMgr.enemyY[slot] - ty);
+        const dx = eX[slot] - tx;
+        const dy = eY[slot] - ty;
+        const dSq = dx * dx + dy * dy;
         if (dSq < minDistSq) {
           minDistSq = dSq;
           bestSlot = slot;

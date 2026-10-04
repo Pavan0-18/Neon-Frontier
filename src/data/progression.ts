@@ -37,6 +37,8 @@ export function getXpForLevel(level: number): number {
   return Math.floor(150 * Math.pow(level, 1.45));
 }
 
+export const ALL_TOWERS: TowerType[] = ['pulse', 'tesla', 'mortar', 'cryo', 'railgun', 'laser', 'flak', 'vortex'];
+
 export class ProgressionManager {
   private static profile: PlayerProfile | null = null;
 
@@ -64,11 +66,12 @@ export class ProgressionManager {
           totalKills: parsed.totalKills || 0,
           totalCreditsEarned: parsed.totalCreditsEarned || 0,
           completedChallenges: parsed.completedChallenges || {},
-          unlockedTowers: parsed.unlockedTowers || ['pulse', 'tesla'],
+          unlockedTowers:
+            parsed.unlockedTowers && parsed.unlockedTowers.length >= 8 ? parsed.unlockedTowers : [...ALL_TOWERS],
           selectedChallengeId: parsed.selectedChallengeId || 'first_contact'
         };
 
-        // Ensure level-based unlocks are synced
+        // Ensure all towers are synced
         this.syncUnlockedTowers(profile);
         return profile;
       }
@@ -84,7 +87,7 @@ export class ProgressionManager {
       totalKills: 0,
       totalCreditsEarned: 0,
       completedChallenges: {},
-      unlockedTowers: ['pulse', 'tesla'],
+      unlockedTowers: [...ALL_TOWERS],
       selectedChallengeId: 'first_contact'
     };
 
@@ -102,24 +105,8 @@ export class ProgressionManager {
 
   private static syncUnlockedTowers(profile: PlayerProfile): void {
     const list = new Set(profile.unlockedTowers);
-    // Base starter towers
-    list.add('pulse');
-    list.add('tesla');
-
-    // Add towers unlocked by core level
-    for (let lvl = 1; lvl <= profile.coreLevel; lvl++) {
-      if (CORE_LEVEL_UNLOCKS[lvl]) {
-        list.add(CORE_LEVEL_UNLOCKS[lvl].tower);
-      }
-    }
-
-    // Add towers unlocked by completed challenges
-    for (const c of CHALLENGES) {
-      if (profile.completedChallenges[c.id] && c.unlockedTower) {
-        list.add(c.unlockedTower);
-      }
-    }
-
+    // Ensure all 8 tactical defense towers are available
+    ALL_TOWERS.forEach(t => list.add(t));
     profile.unlockedTowers = Array.from(list);
   }
 
