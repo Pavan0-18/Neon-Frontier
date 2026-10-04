@@ -3,6 +3,7 @@ import { GameEngine } from '../engine/GameEngine';
 import { GlobalPathSystem } from '../systems/PathSystem';
 import { TOWER_DEFINITIONS, TowerType } from '../../data/towers';
 import { ENEMY_DEFINITIONS } from '../../data/enemies';
+import { DEFENSE_NODES, DefenseNodeDef } from '../../data/nodes';
 
 export class DefenseScene extends Phaser.Scene {
   private engine!: GameEngine;
@@ -20,10 +21,12 @@ export class DefenseScene extends Phaser.Scene {
   private blitterBobs: Phaser.GameObjects.Bob[] = [];
   private readonly maxBobs: number = 18000;
 
-  // Placement preview
+  // Placement preview and Node Interaction
   public selectedBuildType: TowerType | null = null;
   public selectedTowerId: number | null = null;
-  public onTowerSelected?: (id: number | null) => void;
+  public hoveredNode: DefenseNodeDef | null = null;
+  public onNodeClicked?: (node: DefenseNodeDef, screenPos: { x: number; y: number }) => void;
+  public onTowerSelected?: (id: number | null, screenPos?: { x: number; y: number }) => void;
   public onTowerPlaced?: (type: TowerType, x: number, y: number) => void;
   public uiManager?: { tickTelemetry: (dt: number) => void };
 
@@ -82,6 +85,20 @@ export class DefenseScene extends Phaser.Scene {
       this.mouseWorldX = pointer.x;
       this.mouseWorldY = pointer.y;
       this.isPointerInCanvas = true;
+
+      // Detect hovering over defense nodes
+      let foundNode: DefenseNodeDef | null = null;
+      for (let i = 0; i < DEFENSE_NODES.length; i++) {
+        const n = DEFENSE_NODES[i];
+        if (Math.hypot(n.x - pointer.x, n.y - pointer.y) <= 22) {
+          foundNode = n;
+          break;
+        }
+      }
+      this.hoveredNode = foundNode;
+      if (this.game.canvas) {
+        this.game.canvas.style.cursor = foundNode ? 'pointer' : 'default';
+      }
     });
 
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
@@ -276,8 +293,8 @@ export class DefenseScene extends Phaser.Scene {
 
     const wps = GlobalPathSystem.waypoints;
 
-    // Outer path corridor glow
-    g.lineStyle(48, 0x00f3ff, 0.06);
+    // 1. Soft atmospheric ion haze (ambient cyan path aura)
+    g.lineStyle(32, 0x00f3ff, 0.04);
     g.beginPath();
     g.moveTo(wps[0].x, wps[0].y);
     for (let i = 1; i < wps.length; i++) {
@@ -285,8 +302,8 @@ export class DefenseScene extends Phaser.Scene {
     }
     g.strokePath();
 
-    // Corridor borders
-    g.lineStyle(24, 0x0f172a, 0.9);
+    // 2. Dual subtle magnetic containment rails
+    g.lineStyle(16, 0x060c1e, 0.7);
     g.beginPath();
     g.moveTo(wps[0].x, wps[0].y);
     for (let i = 1; i < wps.length; i++) {
@@ -294,8 +311,8 @@ export class DefenseScene extends Phaser.Scene {
     }
     g.strokePath();
 
-    // Center neon power conduit
-    g.lineStyle(3, 0x00f3ff, 0.6);
+    // 3. High-energy optical conduit center line
+    g.lineStyle(2.5, 0x00f3ff, 0.75);
     g.beginPath();
     g.moveTo(wps[0].x, wps[0].y);
     for (let i = 1; i < wps.length; i++) {
@@ -303,24 +320,38 @@ export class DefenseScene extends Phaser.Scene {
     }
     g.strokePath();
 
-    // Warp In Portal
-    g.fillStyle(0x00f3ff, 0.2);
-    g.fillCircle(wps[0].x, wps[0].y, 22);
-    g.lineStyle(2, 0x00f3ff, 0.9);
-    g.strokeCircle(wps[0].x, wps[0].y, 22);
+    // Inner optical laser filament
     g.lineStyle(1, 0xffffff, 0.9);
-    g.strokeCircle(wps[0].x, wps[0].y, 14);
+    g.beginPath();
+    g.moveTo(wps[0].x, wps[0].y);
+    for (let i = 1; i < wps.length; i++) {
+      g.lineTo(wps[i].x, wps[i].y);
+    }
+    g.strokePath();
 
-    // Energy Core Base Structure
-    const core = GlobalPathSystem.corePosition;
-    g.fillStyle(0xffaa00, 0.15);
-    g.fillCircle(core.x, core.y, 40);
-    g.lineStyle(3, 0xffaa00, 0.9);
-    g.strokeCircle(core.x, core.y, 32);
-    g.lineStyle(2, 0x00f3ff, 0.8);
-    g.strokeCircle(core.x, core.y, 20);
+    // 4. Warp-In Portal (Hyperspace Gate)
+    const portal = wps[0];
+    g.fillStyle(0x00f3ff, 0.15);
+    g.fillCircle(portal.x, portal.y, 22);
+    g.lineStyle(2, 0x00f3ff, 0.9);
+    g.strokeCircle(portal.x, portal.y, 22);
+    g.lineStyle(1, 0xffffff, 0.9);
+    g.strokeCircle(portal.x, portal.y, 14);
     g.fillStyle(0x00f3ff, 0.9);
+    g.fillCircle(portal.x, portal.y, 6);
+
+    // 5. Energy Core Base Structure (Colony Heart)
+    const core = GlobalPathSystem.corePosition;
+    g.fillStyle(0xffaa00, 0.12);
+    g.fillCircle(core.x, core.y, 42);
+    g.lineStyle(2.5, 0xffaa00, 0.9);
+    g.strokeCircle(core.x, core.y, 32);
+    g.lineStyle(1.5, 0x00f3ff, 0.85);
+    g.strokeCircle(core.x, core.y, 20);
+    g.fillStyle(0x00f3ff, 0.95);
     g.fillCircle(core.x, core.y, 10);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(core.x, core.y, 4);
   }
 
   public update(_time: number, delta: number): void {
@@ -384,35 +415,276 @@ export class DefenseScene extends Phaser.Scene {
       wg.fillCircle(core.x, core.y, pulseR);
     }
 
-    // --- RENDER TOWERS ---
+    // --- RENDER EMPTY DEFENSE NODES ---
+    const now = Date.now();
+    for (let i = 0; i < DEFENSE_NODES.length; i++) {
+      const node = DEFENSE_NODES[i];
+      // Check if node has a tower on it
+      const hasTower = em.towers.some(t => t.nodeId === node.id || Math.hypot(t.x - node.x, t.y - node.y) < 18);
+      if (hasTower) continue;
+
+      const isHovered = (this.hoveredNode?.id === node.id);
+      const pulse = Math.sin(now * 0.0035 + i * 0.4);
+      const baseAlpha = isHovered ? 0.95 : (0.45 + pulse * 0.15);
+      const r = isHovered ? 17 : 14;
+
+      // Color coding per node bonus type
+      let nodeColor = 0x00f3ff; // standard
+      if (node.type === 'power') nodeColor = 0xf59e0b; // amber
+      else if (node.type === 'range') nodeColor = 0x38bdf8; // sky cyan
+      else if (node.type === 'amplifier') nodeColor = 0xb026ff; // purple
+
+      // Ground bracket anchor
+      wg.fillStyle(0x0a1026, 0.6);
+      wg.fillCircle(node.x, node.y, r);
+      wg.lineStyle(1.5, nodeColor, baseAlpha);
+
+      if (node.type === 'standard') {
+        wg.strokeCircle(node.x, node.y, r);
+        wg.fillStyle(nodeColor, baseAlpha * 0.8);
+        wg.fillCircle(node.x, node.y, 3);
+        // Cardinal ticks
+        wg.lineBetween(node.x - r - 3, node.y, node.x - r + 3, node.y);
+        wg.lineBetween(node.x + r - 3, node.y, node.x + r + 3, node.y);
+        wg.lineBetween(node.x, node.y - r - 3, node.x, node.y - r + 3);
+        wg.lineBetween(node.x, node.y + r - 3, node.x, node.y + r + 3);
+      } else if (node.type === 'power') {
+        // Glowing equilateral triangle anchor
+        const triR = r + 1;
+        const a0 = -Math.PI / 2;
+        const a1 = a0 + (Math.PI * 2 / 3);
+        const a2 = a1 + (Math.PI * 2 / 3);
+        wg.beginPath();
+        wg.moveTo(node.x + Math.cos(a0) * triR, node.y + Math.sin(a0) * triR);
+        wg.lineTo(node.x + Math.cos(a1) * triR, node.y + Math.sin(a1) * triR);
+        wg.lineTo(node.x + Math.cos(a2) * triR, node.y + Math.sin(a2) * triR);
+        wg.closePath();
+        wg.strokePath();
+        wg.fillStyle(nodeColor, baseAlpha * 0.85);
+        wg.fillCircle(node.x, node.y, 3.5);
+      } else if (node.type === 'range') {
+        // Tactical diamond anchor
+        const dR = r + 1;
+        wg.beginPath();
+        wg.moveTo(node.x, node.y - dR);
+        wg.lineTo(node.x + dR, node.y);
+        wg.lineTo(node.x, node.y + dR);
+        wg.lineTo(node.x - dR, node.y);
+        wg.closePath();
+        wg.strokePath();
+        wg.strokeCircle(node.x, node.y, 4);
+      } else if (node.type === 'amplifier') {
+        // Octagonal harmonic amplifier
+        wg.strokeCircle(node.x, node.y, r);
+        const inR = r - 4;
+        wg.beginPath();
+        wg.moveTo(node.x, node.y - inR);
+        wg.lineTo(node.x + inR, node.y);
+        wg.lineTo(node.x, node.y + inR);
+        wg.lineTo(node.x - inR, node.y);
+        wg.closePath();
+        wg.strokePath();
+      }
+
+      if (isHovered) {
+        wg.lineStyle(1, 0xffffff, 0.8);
+        wg.strokeCircle(node.x, node.y, r + 5 + Math.sin(now * 0.01) * 2);
+      }
+    }
+
+    // --- RENDER TOWERS (ORBITAL DEFENSE STRUCTURES) ---
+    const isOvercharged = em.overchargeTimer > 0;
     for (let i = 0; i < em.towers.length; i++) {
       const t = em.towers[i];
       const isSelected = (t.id === this.selectedTowerId);
       const def = TOWER_DEFINITIONS[t.type];
+      t.rotationAngle = (t.rotationAngle || 0) + dt * 1.6;
+      const rot = t.rotationAngle;
 
-      // Base pedestal
-      wg.fillStyle(0x0f172a, 0.95);
+      // Underglow indicating tactical node bonus
+      if (t.nodeType === 'power') {
+        wg.fillStyle(0xf59e0b, 0.16);
+        wg.fillCircle(t.x, t.y, 22);
+      } else if (t.nodeType === 'range') {
+        wg.fillStyle(0x38bdf8, 0.16);
+        wg.fillCircle(t.x, t.y, 22);
+      } else if (t.nodeType === 'amplifier') {
+        wg.fillStyle(0xb026ff, 0.18);
+        wg.fillCircle(t.x, t.y, 22);
+      }
+
+      // Orbital Platform Base
+      wg.fillStyle(0x080f20, 0.95);
       wg.fillCircle(t.x, t.y, 18);
-      wg.lineStyle(2, isSelected ? 0xffffff : def.color, isSelected ? 1 : 0.85);
+      wg.lineStyle(1.5, isSelected ? 0xffffff : def.color, isSelected ? 1 : 0.8);
       wg.strokeCircle(t.x, t.y, 18);
 
-      // Inner turret core
-      wg.fillStyle(def.color, 0.85);
-      wg.fillCircle(t.x, t.y, 8 + t.level * 2);
+      // Overcharge electrical aura
+      if (isOvercharged) {
+        wg.lineStyle(2, 0xffd700, 0.85);
+        wg.strokeCircle(t.x, t.y, 22 + Math.sin(now * 0.015 + i) * 3);
+        wg.fillStyle(0xffd700, 0.1);
+        wg.fillCircle(t.x, t.y, 22);
+      }
 
-      // Level indicator pips
+      // Render Distinct Orbital Structure based on Tower Type
+      switch (t.type) {
+        case 'pulse': {
+          // Rotating energy ring with 3 perimeter magnetic emitters and glowing core
+          wg.lineStyle(1.5, def.color, 0.85);
+          wg.strokeCircle(t.x, t.y, 12);
+          for (let k = 0; k < 3; k++) {
+            const ea = rot + (k * Math.PI * 2 / 3);
+            wg.fillStyle(0xffffff, 0.95);
+            wg.fillCircle(t.x + Math.cos(ea) * 12, t.y + Math.sin(ea) * 12, 2.5);
+          }
+          const coreR = 5 + Math.sin(now * 0.006) * 1.5;
+          wg.fillStyle(def.color, 1);
+          wg.fillCircle(t.x, t.y, coreR);
+          wg.fillStyle(0xffffff, 0.9);
+          wg.fillCircle(t.x, t.y, coreR * 0.5);
+          break;
+        }
+
+        case 'tesla': {
+          // Central lightning reactor with 3 orbiting satellite induction nodes
+          wg.fillStyle(def.color, 0.9);
+          wg.fillCircle(t.x, t.y, 7);
+          wg.fillStyle(0xffffff, 1);
+          wg.fillCircle(t.x, t.y, 3);
+          for (let k = 0; k < 3; k++) {
+            const sa = rot * 1.5 + (k * Math.PI * 2 / 3);
+            const sx = t.x + Math.cos(sa) * 13;
+            const sy = t.y + Math.sin(sa) * 13;
+            wg.fillStyle(0xd8b4fe, 1);
+            wg.fillCircle(sx, sy, 3);
+            // Crackling micro-arc to core
+            wg.lineStyle(1, 0xd8b4fe, 0.7);
+            wg.lineBetween(t.x, t.y, sx, sy);
+          }
+          break;
+        }
+
+        case 'mortar': {
+          // Rotating diamond heavy reactor with pulsing fusion core
+          const mR = 12;
+          wg.lineStyle(2, def.color, 0.9);
+          wg.beginPath();
+          wg.moveTo(t.x + Math.cos(rot) * mR, t.y + Math.sin(rot) * mR);
+          wg.lineTo(t.x + Math.cos(rot + Math.PI / 2) * mR, t.y + Math.sin(rot + Math.PI / 2) * mR);
+          wg.lineTo(t.x + Math.cos(rot + Math.PI) * mR, t.y + Math.sin(rot + Math.PI) * mR);
+          wg.lineTo(t.x + Math.cos(rot + Math.PI * 1.5) * mR, t.y + Math.sin(rot + Math.PI * 1.5) * mR);
+          wg.closePath();
+          wg.strokePath();
+          wg.fillStyle(0xffaa00, 1);
+          wg.fillCircle(t.x, t.y, 6);
+          wg.fillStyle(0xffffff, 1);
+          wg.fillCircle(t.x, t.y, 3);
+          break;
+        }
+
+        case 'cryo': {
+          // Hexagonal crystal prism with 4 counter-orbiting frost shards
+          wg.fillStyle(def.color, 0.8);
+          wg.beginPath();
+          for (let k = 0; k < 6; k++) {
+            const ha = (k * Math.PI / 3);
+            const hx = t.x + Math.cos(ha) * 8;
+            const hy = t.y + Math.sin(ha) * 8;
+            if (k === 0) wg.moveTo(hx, hy);
+            else wg.lineTo(hx, hy);
+          }
+          wg.closePath();
+          wg.fillPath();
+          // Counter-rotating frost crystals
+          for (let k = 0; k < 4; k++) {
+            const fa = -rot * 1.2 + (k * Math.PI / 2);
+            const fx = t.x + Math.cos(fa) * 13;
+            const fy = t.y + Math.sin(fa) * 13;
+            wg.fillStyle(0xffffff, 0.9);
+            wg.fillRect(fx - 1.5, fy - 1.5, 3, 3);
+          }
+          break;
+        }
+
+        case 'railgun': {
+          // Dual linear accelerator rails pointing in targeting direction
+          let targetAngle = rot * 0.2;
+          if (t.targetEnemyIdx >= 0 && em.enemyActive[t.targetEnemyIdx] === 1) {
+            targetAngle = Math.atan2(em.enemyY[t.targetEnemyIdx] - t.y, em.enemyX[t.targetEnemyIdx] - t.x);
+          }
+          const cosA = Math.cos(targetAngle);
+          const sinA = Math.sin(targetAngle);
+          const normX = -sinA * 4;
+          const normY = cosA * 4;
+
+          // Twin rails
+          wg.lineStyle(2, def.color, 1);
+          wg.lineBetween(t.x + normX - cosA * 5, t.y + normY - sinA * 5, t.x + normX + cosA * 15, t.y + normY + sinA * 15);
+          wg.lineBetween(t.x - normX - cosA * 5, t.y - normY - sinA * 5, t.x - normX + cosA * 15, t.y - normY + sinA * 15);
+          // Capacitor breach
+          wg.fillStyle(0xffffff, 0.95);
+          wg.fillCircle(t.x - cosA * 2, t.y - sinA * 2, 4);
+          break;
+        }
+
+        case 'laser': {
+          // Directional crystalline focal lens with concentric aperture
+          wg.lineStyle(1.5, def.color, 0.9);
+          wg.strokeCircle(t.x, t.y, 11);
+          wg.lineStyle(1, 0xffffff, 0.8);
+          wg.strokeCircle(t.x, t.y, 6);
+          wg.fillStyle(def.color, 0.95);
+          wg.fillCircle(t.x, t.y, 4);
+          break;
+        }
+
+        case 'flak': {
+          // Rotary quad-burst barrel hub
+          wg.fillStyle(0x1e293b, 1);
+          wg.fillCircle(t.x, t.y, 9);
+          for (let k = 0; k < 4; k++) {
+            const ba = rot * 2 + (k * Math.PI / 2);
+            const bx = t.x + Math.cos(ba) * 12;
+            const by = t.y + Math.sin(ba) * 12;
+            wg.lineStyle(2.5, def.color, 0.9);
+            wg.lineBetween(t.x + Math.cos(ba) * 4, t.y + Math.sin(ba) * 4, bx, by);
+          }
+          wg.fillStyle(0xffffff, 1);
+          wg.fillCircle(t.x, t.y, 3);
+          break;
+        }
+
+        case 'vortex': {
+          // Micro-black hole: dark void center with swirling accretion discs
+          wg.fillStyle(0x000000, 1);
+          wg.fillCircle(t.x, t.y, 7);
+          wg.lineStyle(1.5, def.color, 0.9);
+          wg.strokeCircle(t.x, t.y, 7);
+          for (let k = 0; k < 3; k++) {
+            const va = rot * 2.2 + (k * Math.PI * 2 / 3);
+            const vx = t.x + Math.cos(va) * 12;
+            const vy = t.y + Math.sin(va) * 12;
+            wg.fillStyle(0xc084fc, 0.9);
+            wg.fillCircle(vx, vy, 2.5);
+          }
+          break;
+        }
+      }
+
+      // Level indicator satellites
       for (let lvl = 0; lvl < t.level; lvl++) {
         const angle = (lvl * (Math.PI * 2 / 3)) - Math.PI / 2;
-        const px = t.x + Math.cos(angle) * 13;
-        const py = t.y + Math.sin(angle) * 13;
+        const px = t.x + Math.cos(angle) * 14;
+        const py = t.y + Math.sin(angle) * 14;
         wg.fillStyle(0xffffff, 1);
-        wg.fillCircle(px, py, 2.5);
+        wg.fillCircle(px, py, 2);
       }
 
       // EMP Stun indicator
       if (t.stunTimer > 0) {
         wg.lineStyle(2, 0x00f3ff, 0.8);
-        wg.strokeCircle(t.x, t.y, 22 + Math.sin(Date.now() * 0.01) * 3);
+        wg.strokeCircle(t.x, t.y, 22 + Math.sin(now * 0.01) * 3);
       }
 
       // If shooting railgun, draw instant hypersonic beam
@@ -658,8 +930,88 @@ export class DefenseScene extends Phaser.Scene {
     }
   }
 
+  public getScreenCoords(worldX: number, worldY: number): { x: number; y: number } {
+    const canvas = this.game.canvas;
+    if (!canvas) return { x: worldX, y: worldY };
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = rect.width / 1280;
+    const scaleY = rect.height / 720;
+    return {
+      x: rect.left + worldX * scaleX,
+      y: rect.top + worldY * scaleY
+    };
+  }
+
+  public buildTowerOnNode(node: DefenseNodeDef, towerType: TowerType): boolean {
+    const def = TOWER_DEFINITIONS[towerType];
+    if (this.engine.economySystem.spendCredits(def.baseCost)) {
+      const t = this.engine.entityMgr.createTower(towerType, node.x, node.y, node.id, node.type);
+      this.selectedTowerId = t.id;
+      if (this.onTowerPlaced) {
+        this.onTowerPlaced(towerType, node.x, node.y);
+      }
+      const screenPos = this.getScreenCoords(node.x, node.y);
+      if (this.onTowerSelected) {
+        this.onTowerSelected(t.id, screenPos);
+      }
+      return true;
+    }
+    return false;
+  }
+
   private handlePointerClick(x: number, y: number): void {
-    // 1. If placing a tower
+    // 1. Check if clicked near an orbital defense node
+    let closestNode: DefenseNodeDef | null = null;
+    let minDist = 26;
+    for (let i = 0; i < DEFENSE_NODES.length; i++) {
+      const n = DEFENSE_NODES[i];
+      const d = Math.hypot(n.x - x, n.y - y);
+      if (d < minDist) {
+        minDist = d;
+        closestNode = n;
+      }
+    }
+
+    if (closestNode) {
+      const screenPos = this.getScreenCoords(closestNode.x, closestNode.y);
+      const existingTower = this.engine.entityMgr.towers.find(
+        t => t.nodeId === closestNode!.id || Math.hypot(t.x - closestNode!.x, t.y - closestNode!.y) < 22
+      );
+
+      if (existingTower) {
+        this.selectedTowerId = existingTower.id;
+        if (this.onTowerSelected) {
+          this.onTowerSelected(existingTower.id, screenPos);
+        }
+      } else {
+        // If a build type was already queued
+        if (this.selectedBuildType !== null) {
+          this.buildTowerOnNode(closestNode, this.selectedBuildType);
+          this.selectedBuildType = null;
+          return;
+        }
+
+        // Open radial build menu at node
+        this.selectedTowerId = null;
+        if (this.onNodeClicked) {
+          this.onNodeClicked(closestNode, screenPos);
+        }
+      }
+      return;
+    }
+
+    // 2. Check if clicked on a tower placed outside standard nodes (e.g. from benchmarks)
+    const clickedTower = this.engine.entityMgr.towers.find(t => Math.hypot(t.x - x, t.y - y) <= 22);
+    if (clickedTower) {
+      this.selectedTowerId = clickedTower.id;
+      const screenPos = this.getScreenCoords(clickedTower.x, clickedTower.y);
+      if (this.onTowerSelected) {
+        this.onTowerSelected(clickedTower.id, screenPos);
+      }
+      return;
+    }
+
+    // 3. Fallback free-placement if selectedBuildType is set
     if (this.selectedBuildType !== null) {
       if (this.isValidPlacement(x, y)) {
         const def = TOWER_DEFINITIONS[this.selectedBuildType];
@@ -669,8 +1021,9 @@ export class DefenseScene extends Phaser.Scene {
           if (this.onTowerPlaced) {
             this.onTowerPlaced(this.selectedBuildType, x, y);
           }
+          const screenPos = this.getScreenCoords(x, y);
           if (this.onTowerSelected) {
-            this.onTowerSelected(t.id);
+            this.onTowerSelected(t.id, screenPos);
           }
           this.selectedBuildType = null;
         }
@@ -678,19 +1031,10 @@ export class DefenseScene extends Phaser.Scene {
       return;
     }
 
-    // 2. Otherwise check if clicked on an existing tower
-    const clickedTower = this.engine.entityMgr.towers.find(t => Math.hypot(t.x - x, t.y - y) <= 22);
-    if (clickedTower) {
-      this.selectedTowerId = clickedTower.id;
-      if (this.onTowerSelected) {
-        this.onTowerSelected(clickedTower.id);
-      }
-    } else {
-      // Clicked on empty space: deselect
-      this.selectedTowerId = null;
-      if (this.onTowerSelected) {
-        this.onTowerSelected(null);
-      }
+    // 4. Clicked on empty space: deselect and close all context menus
+    this.selectedTowerId = null;
+    if (this.onTowerSelected) {
+      this.onTowerSelected(null);
     }
   }
 

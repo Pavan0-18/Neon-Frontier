@@ -1,5 +1,6 @@
 import { EnemyType, ENEMY_DEFINITIONS } from '../../data/enemies';
 import { TowerType, TargetingStrategy, TOWER_DEFINITIONS, TowerLevelStats } from '../../data/towers';
+import { DefenseNodeType } from '../../data/nodes';
 import { SpatialGrid } from '../spatial/SpatialGrid';
 import { GlobalPathSystem, Point } from '../systems/PathSystem';
 
@@ -22,6 +23,9 @@ export interface TowerEntity {
   targetEnemyIdx: number;
   laserTargetIdx: number;
   laserLockDuration: number;
+  nodeId?: number;
+  nodeType?: DefenseNodeType;
+  rotationAngle: number;
 }
 
 export interface FloatingText {
@@ -344,9 +348,19 @@ export class EntityManager {
 
   // --- TOWERS ---
 
-  public createTower(type: TowerType, x: number, y: number): TowerEntity {
+  public overchargeTimer: number = 0;
+
+  public createTower(type: TowerType, x: number, y: number, nodeId?: number, nodeType?: DefenseNodeType): TowerEntity {
     const def = TOWER_DEFINITIONS[type];
     const stats = def.levels[0];
+
+    let range = stats.range;
+    let damage = stats.damage;
+    let attackInterval = stats.attackInterval;
+
+    if (nodeType === 'range') range = Math.round(range * 1.25);
+    if (nodeType === 'amplifier') damage = Math.round(damage * 1.25);
+    if (nodeType === 'power') attackInterval = Math.round(attackInterval * 0.82 * 100) / 100;
 
     const tower: TowerEntity = {
       id: this.nextTowerId++,
@@ -354,9 +368,9 @@ export class EntityManager {
       level: 1,
       x,
       y,
-      range: stats.range,
-      damage: stats.damage,
-      attackInterval: stats.attackInterval,
+      range,
+      damage,
+      attackInterval,
       cooldownTimer: 0,
       targetingStrategy: 'first',
       totalInvested: def.baseCost,
@@ -366,7 +380,10 @@ export class EntityManager {
       currentStats: stats,
       targetEnemyIdx: -1,
       laserTargetIdx: -1,
-      laserLockDuration: 0
+      laserLockDuration: 0,
+      nodeId,
+      nodeType,
+      rotationAngle: 0
     };
 
     this.towers.push(tower);
@@ -383,10 +400,27 @@ export class EntityManager {
     tower.level++;
     tower.totalInvested += tower.currentStats.upgradeCost;
     tower.currentStats = nextStats;
-    tower.range = nextStats.range;
-    tower.damage = nextStats.damage;
-    tower.attackInterval = nextStats.attackInterval;
+
+    let range = nextStats.range;
+    let damage = nextStats.damage;
+    let attackInterval = nextStats.attackInterval;
+
+    if (tower.nodeType === 'range') range = Math.round(range * 1.25);
+    if (tower.nodeType === 'amplifier') damage = Math.round(damage * 1.25);
+    if (tower.nodeType === 'power') attackInterval = Math.round(attackInterval * 0.82 * 100) / 100;
+
+    tower.range = range;
+    tower.damage = damage;
+    tower.attackInterval = attackInterval;
     return true;
+  }
+
+  public triggerOrbitalOvercharge(durationSec: number = 8.0): void {
+    this.overchargeTimer = durationSec;
+    for (const t of this.towers) {
+      this.spawnParticles(t.x, t.y, 0x00ff88, 14, 1.8);
+      this.spawnFloatingText(t.x, t.y - 20, 'OVERCHARGE +50%!', '#00ff88');
+    }
   }
 
   public removeTower(id: number): TowerEntity | null {

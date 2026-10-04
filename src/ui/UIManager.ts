@@ -4,6 +4,7 @@ import { TOWER_DEFINITIONS, TowerType, TargetingStrategy } from '../data/towers'
 import { GlobalSoundFX } from '../audio/SoundFX';
 import { GlobalRNG } from '../game/engine/RNG';
 import { GlobalPathSystem } from '../game/systems/PathSystem';
+import { DEFENSE_NODES, DefenseNodeDef } from '../data/nodes';
 
 export class UIManager {
   private engine: GameEngine;
@@ -21,23 +22,16 @@ export class UIManager {
   private breachVignette!: HTMLElement;
   private baseDangerAlert!: HTMLElement;
 
-  // Desktop Controls
+  // Header Controls & Orbital Command Dropdown
+  private btnCommandMenu!: HTMLElement;
+  private commandDropdown!: HTMLElement;
+  private btnTacticalEmp!: HTMLButtonElement;
+  private btnTacticalBombard!: HTMLButtonElement;
+  private btnTacticalOvercharge!: HTMLButtonElement;
+
   private btnPause!: HTMLElement;
   private speedBtns: Record<number, HTMLElement> = {};
-  private btnAudio!: HTMLElement;
-  private btnFullscreen!: HTMLElement;
-  private btnPerfLab!: HTMLElement;
-  private btnRadarToggle!: HTMLElement;
-  private btnMobileMenu!: HTMLElement;
-
-  // Mobile Menu Drawer
-  private mobileMenuDrawer!: HTMLElement;
-  private mBtnPause!: HTMLElement;
-  private mSpeedBtns: Record<number, HTMLElement> = {};
-  private mBtnAudio!: HTMLElement;
-  private mBtnFullscreen!: HTMLElement;
-  private mBtnRadar!: HTMLElement;
-  private mBtnPerf!: HTMLElement;
+  private btnSettingsModal!: HTMLElement;
 
   // Radar Mini-Map
   private radarContainer!: HTMLElement;
@@ -45,43 +39,37 @@ export class UIManager {
   private radarCanvas!: HTMLCanvasElement;
   private radarCtx!: CanvasRenderingContext2D;
 
-  // Tactical Actions
-  private btnTacticalEmp!: HTMLButtonElement;
-  private btnTacticalBombard!: HTMLButtonElement;
-
   // Wave Actions
   private waveActionContainer!: HTMLElement;
   private btnStartWave!: HTMLElement;
   private waveBtnLabel!: HTMLElement;
   private waveAutoCountdown!: HTMLElement;
 
-  // Interactive Bottom Dock
-  private buildDeckWrapper!: HTMLElement;
-  private buildDeck!: HTMLElement;
-  private btnMoreTowers!: HTMLElement;
+  // In-World Radial Build Menu
+  private radialBuildMenu!: HTMLElement;
+  private rbmNodeTitle!: HTMLElement;
+  private rbmNodeBonus!: HTMLElement;
+  private rbmCloseBtn!: HTMLElement;
+  private rbmGrid!: HTMLElement;
+  public activeNodeForBuild: DefenseNodeDef | null = null;
 
-  // Context-Aware Inspector
-  private contextInspector!: HTMLElement;
-  private ciIcon!: HTMLElement;
-  private ciName!: HTMLElement;
-  private ciTier!: HTMLElement;
-  private ciCloseBtn!: HTMLElement;
-  private ciDmg!: HTMLElement;
-  private ciRange!: HTMLElement;
-  private ciRate!: HTMLElement;
-  private ciDps!: HTMLElement;
-  private ciBtnUpgrade!: HTMLButtonElement;
-  private ciUpgradeTitle!: HTMLElement;
-  private ciUpgradeCost!: HTMLElement;
-  private ciBtnSell!: HTMLButtonElement;
-  private ciSellCost!: HTMLElement;
-  private ciTargetToggle!: HTMLButtonElement;
-
-  // Mobile Tower Drawer Modal
-  private towerDrawerModal!: HTMLElement;
-  private drawerBackdrop!: HTMLElement;
-  private drawerCloseBtn!: HTMLElement;
-  private drawerTowerList!: HTMLElement;
+  // In-World Context Node Inspector
+  private contextNodeMenu!: HTMLElement;
+  private cnmIcon!: HTMLElement;
+  private cnmName!: HTMLElement;
+  private cnmTier!: HTMLElement;
+  private cnmBonusBadge!: HTMLElement;
+  private cnmCloseBtn!: HTMLElement;
+  private cnmDmg!: HTMLElement;
+  private cnmRange!: HTMLElement;
+  private cnmRate!: HTMLElement;
+  private cnmDps!: HTMLElement;
+  private cnmBtnUpgrade!: HTMLButtonElement;
+  private cnmUpgradeTitle!: HTMLElement;
+  private cnmUpgradeCost!: HTMLElement;
+  private cnmBtnSell!: HTMLButtonElement;
+  private cnmSellCost!: HTMLElement;
+  private cnmTargetToggle!: HTMLButtonElement;
 
   // Cinematic Intro Modal
   private introModal!: HTMLElement;
@@ -113,9 +101,13 @@ export class UIManager {
   private vicScore!: HTMLElement;
   private btnPlayAgain!: HTMLElement;
 
-  // Perf Lab Elements
+  // System Controls & Perf Lab Elements
   private perfLabModal!: HTMLElement;
   private btnClosePerf!: HTMLElement;
+  private btnAudioToggle!: HTMLElement;
+  private btnFullscreenToggle!: HTMLElement;
+  private btnRadarToggle!: HTMLElement;
+
   private mFps!: HTMLElement;
   private mFrameTime!: HTMLElement;
   private mP95!: HTMLElement;
@@ -165,8 +157,6 @@ export class UIManager {
     this.engine = engine;
     this.scene = scene;
     this.cacheDOMElements();
-    this.initBuildDeck();
-    this.initDrawerList();
     this.bindEvents();
     this.bindKeyboardShortcuts();
     this.updateHUD();
@@ -185,27 +175,23 @@ export class UIManager {
     this.breachVignette = document.getElementById('breach-vignette')!;
     this.baseDangerAlert = document.getElementById('base-danger-alert')!;
 
-    // Desktop Controls
+    // Top Controls & Command Dropdown
+    this.btnCommandMenu = document.getElementById('btn-command-menu')!;
+    this.commandDropdown = document.getElementById('command-dropdown')!;
+    this.btnTacticalEmp = document.getElementById('btn-tactical-emp') as HTMLButtonElement;
+    this.btnTacticalBombard = document.getElementById('btn-tactical-bombard') as HTMLButtonElement;
+    this.btnTacticalOvercharge = document.getElementById('btn-tactical-overcharge') as HTMLButtonElement;
+
     this.btnPause = document.getElementById('btn-pause')!;
     this.speedBtns[1] = document.getElementById('btn-speed-1')!;
     this.speedBtns[2] = document.getElementById('btn-speed-2')!;
     this.speedBtns[4] = document.getElementById('btn-speed-4')!;
-    this.btnAudio = document.getElementById('btn-audio')!;
-    this.btnFullscreen = document.getElementById('btn-fullscreen')!;
-    this.btnPerfLab = document.getElementById('btn-perf-lab')!;
-    this.btnRadarToggle = document.getElementById('btn-radar-toggle')!;
-    this.btnMobileMenu = document.getElementById('btn-mobile-menu')!;
+    this.btnSettingsModal = document.getElementById('btn-settings-modal')!;
 
-    // Mobile Menu Drawer
-    this.mobileMenuDrawer = document.getElementById('mobile-menu-drawer')!;
-    this.mBtnPause = document.getElementById('m-btn-pause')!;
-    this.mSpeedBtns[1] = document.getElementById('m-btn-speed-1')!;
-    this.mSpeedBtns[2] = document.getElementById('m-btn-speed-2')!;
-    this.mSpeedBtns[4] = document.getElementById('m-btn-speed-4')!;
-    this.mBtnAudio = document.getElementById('m-btn-audio')!;
-    this.mBtnFullscreen = document.getElementById('m-btn-fullscreen')!;
-    this.mBtnRadar = document.getElementById('m-btn-radar')!;
-    this.mBtnPerf = document.getElementById('m-btn-perf')!;
+    // Quick System Controls (inside Settings Modal)
+    this.btnAudioToggle = document.getElementById('btn-audio-toggle')!;
+    this.btnFullscreenToggle = document.getElementById('btn-fullscreen-toggle')!;
+    this.btnRadarToggle = document.getElementById('btn-radar-toggle')!;
 
     // Radar Mini-Map
     this.radarContainer = document.getElementById('radar-container')!;
@@ -215,42 +201,36 @@ export class UIManager {
       this.radarCtx = this.radarCanvas.getContext('2d')!;
     }
 
-    // Tactical Actions
-    this.btnTacticalEmp = document.getElementById('btn-tactical-emp') as HTMLButtonElement;
-    this.btnTacticalBombard = document.getElementById('btn-tactical-bombard') as HTMLButtonElement;
-
     // Wave Actions
     this.waveActionContainer = document.getElementById('wave-action-container')!;
     this.btnStartWave = document.getElementById('btn-start-wave')!;
     this.waveBtnLabel = document.getElementById('wave-btn-label')!;
     this.waveAutoCountdown = document.getElementById('wave-auto-countdown')!;
 
-    // Bottom Dock & Context-Aware Inspector
-    this.buildDeckWrapper = document.getElementById('build-deck-wrapper')!;
-    this.buildDeck = document.getElementById('build-deck')!;
-    this.btnMoreTowers = document.getElementById('btn-more-towers')!;
+    // In-World Radial Build Menu
+    this.radialBuildMenu = document.getElementById('radial-build-menu')!;
+    this.rbmNodeTitle = document.getElementById('rbm-node-title')!;
+    this.rbmNodeBonus = document.getElementById('rbm-node-bonus')!;
+    this.rbmCloseBtn = document.getElementById('rbm-close-btn')!;
+    this.rbmGrid = document.getElementById('rbm-grid')!;
 
-    this.contextInspector = document.getElementById('context-inspector')!;
-    this.ciIcon = document.getElementById('ci-icon')!;
-    this.ciName = document.getElementById('ci-name')!;
-    this.ciTier = document.getElementById('ci-tier')!;
-    this.ciCloseBtn = document.getElementById('ci-close-btn')!;
-    this.ciDmg = document.getElementById('ci-dmg')!;
-    this.ciRange = document.getElementById('ci-range')!;
-    this.ciRate = document.getElementById('ci-rate')!;
-    this.ciDps = document.getElementById('ci-dps')!;
-    this.ciBtnUpgrade = document.getElementById('ci-btn-upgrade') as HTMLButtonElement;
-    this.ciUpgradeTitle = document.getElementById('ci-upgrade-title')!;
-    this.ciUpgradeCost = document.getElementById('ci-upgrade-cost')!;
-    this.ciBtnSell = document.getElementById('ci-btn-sell') as HTMLButtonElement;
-    this.ciSellCost = document.getElementById('ci-sell-cost')!;
-    this.ciTargetToggle = document.getElementById('ci-target-toggle') as HTMLButtonElement;
-
-    // Mobile Tower Drawer Modal
-    this.towerDrawerModal = document.getElementById('tower-drawer-modal')!;
-    this.drawerBackdrop = document.getElementById('drawer-backdrop')!;
-    this.drawerCloseBtn = document.getElementById('drawer-close-btn')!;
-    this.drawerTowerList = document.getElementById('drawer-tower-list')!;
+    // In-World Context Node Inspector
+    this.contextNodeMenu = document.getElementById('context-node-menu')!;
+    this.cnmIcon = document.getElementById('cnm-icon')!;
+    this.cnmName = document.getElementById('cnm-name')!;
+    this.cnmTier = document.getElementById('cnm-tier')!;
+    this.cnmBonusBadge = document.getElementById('cnm-bonus-badge')!;
+    this.cnmCloseBtn = document.getElementById('cnm-close-btn')!;
+    this.cnmDmg = document.getElementById('cnm-dmg')!;
+    this.cnmRange = document.getElementById('cnm-range')!;
+    this.cnmRate = document.getElementById('cnm-rate')!;
+    this.cnmDps = document.getElementById('cnm-dps')!;
+    this.cnmBtnUpgrade = document.getElementById('cnm-btn-upgrade') as HTMLButtonElement;
+    this.cnmUpgradeTitle = document.getElementById('cnm-upgrade-title')!;
+    this.cnmUpgradeCost = document.getElementById('cnm-upgrade-cost')!;
+    this.cnmBtnSell = document.getElementById('cnm-btn-sell') as HTMLButtonElement;
+    this.cnmSellCost = document.getElementById('cnm-sell-cost')!;
+    this.cnmTargetToggle = document.getElementById('cnm-target-toggle') as HTMLButtonElement;
 
     // Cinematic Intro Modal
     this.introModal = document.getElementById('intro-modal')!;
@@ -282,7 +262,7 @@ export class UIManager {
     this.vicScore = document.getElementById('vic-score')!;
     this.btnPlayAgain = document.getElementById('btn-play-again')!;
 
-    // Perf Lab
+    // Perf Lab & Benchmark
     this.perfLabModal = document.getElementById('perf-lab-modal')!;
     this.btnClosePerf = document.getElementById('btn-close-perf')!;
     this.mFps = document.getElementById('m-fps')!;
@@ -311,147 +291,171 @@ export class UIManager {
     this.btnCopyBench = document.getElementById('btn-copy-bench')!;
   }
 
-  private initBuildDeck(): void {
+  public openRadialBuildMenu(node: DefenseNodeDef, screenPos: { x: number; y: number }): void {
+    this.activeNodeForBuild = node;
+    this.closeContextNodeMenu();
+    this.closeCommandDropdown();
+
+    // Node header and tactical bonus badge
+    this.rbmNodeTitle.textContent = `DEFENSE NODE // ${node.id.toUpperCase()}`;
+    let bonusText = 'STANDARD ANCHOR PLATFORM';
+    if (node.type === 'power') bonusText = '⚡ POWER CONDUIT (+20% FIRE RATE)';
+    else if (node.type === 'range') bonusText = '◇ OPTICAL GRID (+25% RANGE)';
+    else if (node.type === 'amplifier') bonusText = '◈ HARMONIC FIELD (+25% DAMAGE)';
+    this.rbmNodeBonus.textContent = bonusText;
+
+    // Populate the 8 orbital defense choices
     const types: TowerType[] = ['pulse', 'tesla', 'mortar', 'cryo', 'railgun', 'laser', 'flak', 'vortex'];
-    this.buildDeck.innerHTML = '';
+    this.rbmGrid.innerHTML = '';
+    const curRound = this.engine.waveSystem.currentWaveNumber;
+    const credits = this.engine.economySystem.credits;
 
     types.forEach((type, idx) => {
       const def = TOWER_DEFINITIONS[type];
+      const isLocked = curRound < def.unlockWave;
+      const canAfford = credits >= def.baseCost;
+
       const card = document.createElement('div');
-      card.className = 'tower-card';
+      card.className = `rbm-card ${isLocked ? 'locked' : ''} ${!isLocked && !canAfford ? 'disabled' : ''}`;
       card.dataset.towerType = type;
       card.title = `${def.name} - ${def.role} (Key: ${idx + 1})`;
       card.innerHTML = `
-        <div class="tc-top-row">
-          <span class="tc-hotkey">[${idx + 1}]</span>
-          <span class="tc-icon-char">${def.iconChar || '◈'}</span>
-        </div>
-        <span class="tc-name">${def.name}</span>
-        <span class="tc-cost">$${def.baseCost}</span>
-        <div class="tc-lock-overlay hidden" id="lock-${type}">
-          <span>🔒</span>
-          <small>R${def.unlockWave}</small>
-        </div>
-      `;
-
-      card.addEventListener('click', () => {
-        const curRound = this.engine.waveSystem.currentWaveNumber;
-        if (curRound < def.unlockWave) {
-          GlobalSoundFX.playUIClick();
-          this.showBanner('DEFENSE SCHEMATIC LOCKED', `${def.name.toUpperCase()} unlocks at Round ${def.unlockWave}.`);
-          return;
-        }
-
-        GlobalSoundFX.playUIClick();
-        if (this.scene.selectedBuildType === type) {
-          this.scene.selectedBuildType = null;
-        } else {
-          this.scene.selectedBuildType = type;
-          this.scene.selectedTowerId = null;
-          this.updateTowerInspectPanel(null);
-        }
-        this.updateBuildCardSelection();
-      });
-
-      this.buildDeck.appendChild(card);
-    });
-  }
-
-  private initDrawerList(): void {
-    const types: TowerType[] = ['pulse', 'tesla', 'mortar', 'cryo', 'railgun', 'laser', 'flak', 'vortex'];
-    this.drawerTowerList.innerHTML = '';
-
-    types.forEach((type, idx) => {
-      const def = TOWER_DEFINITIONS[type];
-      const item = document.createElement('div');
-      item.className = 'drawer-tower-item';
-      item.dataset.towerType = type;
-      item.innerHTML = `
-        <div class="dti-left">
-          <span class="dti-icon">${def.iconChar || '◈'}</span>
-          <div>
-            <div class="dti-name">[${idx + 1}] ${def.name}</div>
-            <div class="dti-role">${def.role} · ${def.description}</div>
+        <div class="rbm-card-left">
+          <span class="rbm-hotkey">[${idx + 1}]</span>
+          <span class="rbm-icon">${def.iconChar || '◈'}</span>
+          <div class="rbm-info">
+            <span class="rbm-name">${def.name}</span>
+            <span class="rbm-role">${def.role}</span>
           </div>
         </div>
-        <div class="dti-right">
-          <span class="dti-cost">$${def.baseCost}</span>
-          <span class="dti-unlock" id="dti-lock-${type}">Round ${def.unlockWave}</span>
-        </div>
+        <span class="rbm-cost">${isLocked ? `🔒 R${def.unlockWave}` : `$${def.baseCost}`}</span>
       `;
 
-      item.addEventListener('click', () => {
-        const curRound = this.engine.waveSystem.currentWaveNumber;
-        if (curRound < def.unlockWave) {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (isLocked) {
           GlobalSoundFX.playUIClick();
-          this.showBanner('LOCKED SCHEMATIC', `${def.name} unlocks at Round ${def.unlockWave}.`);
+          this.showBanner('SCHEMATIC LOCKED', `${def.name} unlocks at Round ${def.unlockWave}.`);
+          return;
+        }
+        if (!canAfford) {
+          GlobalSoundFX.playUIClick();
+          this.showBanner('INSUFFICIENT CREDITS', `${def.name} requires $${def.baseCost}.`);
           return;
         }
 
-        this.scene.selectedBuildType = type;
-        this.scene.selectedTowerId = null;
-        this.updateTowerInspectPanel(null);
-        this.towerDrawerModal.classList.add('hidden');
-        this.updateBuildCardSelection();
-        GlobalSoundFX.playUIClick();
+        GlobalSoundFX.playBuild();
+        this.scene.buildTowerOnNode(node, type);
+        this.closeRadialBuildMenu();
       });
 
-      this.drawerTowerList.appendChild(item);
+      this.rbmGrid.appendChild(card);
     });
+
+    // Position radial build menu clamped inside window bounds
+    const menuWidth = 330;
+    const menuHeight = 220;
+    const clampedX = Math.max(menuWidth / 2 + 10, Math.min(window.innerWidth - menuWidth / 2 - 10, screenPos.x));
+    const clampedY = Math.max(menuHeight / 2 + 60, Math.min(window.innerHeight - menuHeight / 2 - 10, screenPos.y));
+
+    this.radialBuildMenu.style.left = `${clampedX}px`;
+    this.radialBuildMenu.style.top = `${clampedY}px`;
+    this.radialBuildMenu.classList.remove('hidden');
+    GlobalSoundFX.playUIClick();
   }
 
-  private updateBuildCardSelection(): void {
-    const curRound = this.engine.waveSystem.currentWaveNumber;
-    const cards = this.buildDeck.querySelectorAll('.tower-card');
+  public closeRadialBuildMenu(): void {
+    this.activeNodeForBuild = null;
+    this.radialBuildMenu.classList.add('hidden');
+  }
 
-    cards.forEach(c => {
-      const cardEl = c as HTMLElement;
-      const t = cardEl.dataset.towerType as TowerType;
-      const def = TOWER_DEFINITIONS[t];
-      const isLocked = (curRound < def.unlockWave);
-      const lockOverlay = cardEl.querySelector('.tc-lock-overlay');
+  public openContextNodeMenu(towerId: number, screenPos?: { x: number; y: number }): void {
+    this.closeRadialBuildMenu();
+    this.closeCommandDropdown();
 
-      if (isLocked) {
-        cardEl.classList.add('locked');
-        lockOverlay?.classList.remove('hidden');
-      } else {
-        cardEl.classList.remove('locked');
-        lockOverlay?.classList.add('hidden');
+    const t = this.engine.entityMgr.towers.find(tow => tow.id === towerId);
+    if (!t) {
+      this.closeContextNodeMenu();
+      return;
+    }
+
+    const def = TOWER_DEFINITIONS[t.type];
+    const stats = t.currentStats;
+    const isMax = (t.level >= def.levels.length);
+    const nextStats = isMax ? stats : def.levels[t.level];
+
+    this.cnmIcon.textContent = def.iconChar || '◈';
+    this.cnmName.textContent = def.name.toUpperCase();
+    this.cnmTier.textContent = `MK ${t.level} DEFENSE // ${def.role.toUpperCase()}`;
+
+    // Node bonus tag
+    let bonusText = 'STANDARD ANCHOR PLATFORM';
+    if (t.nodeType === 'power') bonusText = '⚡ POWER CONDUIT (+20% ATTACK RATE)';
+    else if (t.nodeType === 'range') bonusText = '◇ OPTICAL GRID (+25% RANGE)';
+    else if (t.nodeType === 'amplifier') bonusText = '◈ HARMONIC FIELD (+25% DAMAGE)';
+    this.cnmBonusBadge.textContent = bonusText;
+
+    // Dynamic stats comparison
+    const curRate = Math.round((1 / stats.attackInterval) * 10) / 10;
+    const nextRate = Math.round((1 / nextStats.attackInterval) * 10) / 10;
+    const curDps = Math.round(stats.damage * curRate * 10) / 10;
+    const nextDps = Math.round(nextStats.damage * nextRate * 10) / 10;
+
+    if (isMax) {
+      this.cnmDmg.textContent = `${stats.damage} (MAX)`;
+      this.cnmRange.textContent = `${stats.range}`;
+      this.cnmRate.textContent = `${curRate}/s`;
+      this.cnmDps.textContent = `${curDps}`;
+      this.cnmBtnUpgrade.disabled = true;
+      this.cnmUpgradeTitle.textContent = 'MAX LEVEL';
+      this.cnmUpgradeCost.textContent = '---';
+    } else {
+      this.cnmDmg.textContent = `${stats.damage} → ${nextStats.damage}`;
+      this.cnmRange.textContent = `${stats.range} → ${nextStats.range}`;
+      this.cnmRate.textContent = `${curRate}/s → ${nextRate}/s`;
+      this.cnmDps.textContent = `${curDps} → ${nextDps}`;
+      this.cnmBtnUpgrade.disabled = (this.engine.economySystem.credits < stats.upgradeCost);
+      this.cnmUpgradeTitle.textContent = `UPGRADE MK ${t.level + 1} [U]`;
+      this.cnmUpgradeCost.textContent = `$${stats.upgradeCost}`;
+    }
+
+    this.cnmSellCost.textContent = `+$${stats.sellValue}`;
+    this.cnmTargetToggle.textContent = `${t.targetingStrategy.toUpperCase()} ▾`;
+
+    // Position context menu beside tower
+    if (screenPos) {
+      const menuWidth = 290;
+      const menuHeight = 240;
+      let targetX = screenPos.x + 30;
+      if (targetX + menuWidth > window.innerWidth - 10) {
+        targetX = screenPos.x - menuWidth - 30;
       }
+      targetX = Math.max(10, targetX);
+      const targetY = Math.max(menuHeight / 2 + 60, Math.min(window.innerHeight - menuHeight / 2 - 10, screenPos.y));
 
-      if (this.scene.selectedBuildType === t) {
-        cardEl.classList.add('selected');
-      } else {
-        cardEl.classList.remove('selected');
-      }
+      this.contextNodeMenu.style.left = `${targetX}px`;
+      this.contextNodeMenu.style.top = `${targetY}px`;
+    }
 
-      if (!isLocked && this.engine.economySystem.credits < def.baseCost) {
-        cardEl.classList.add('disabled');
-      } else {
-        cardEl.classList.remove('disabled');
-      }
-    });
+    this.contextNodeMenu.classList.remove('hidden');
+    GlobalSoundFX.playUIClick();
+  }
 
-    // Update Drawer items
-    const drawerItems = this.drawerTowerList.querySelectorAll('.drawer-tower-item');
-    drawerItems.forEach(di => {
-      const itemEl = di as HTMLElement;
-      const t = itemEl.dataset.towerType as TowerType;
-      const def = TOWER_DEFINITIONS[t];
-      const isLocked = (curRound < def.unlockWave);
+  public closeContextNodeMenu(): void {
+    this.contextNodeMenu.classList.add('hidden');
+  }
 
-      if (isLocked) {
-        itemEl.classList.add('locked');
-      } else {
-        itemEl.classList.remove('locked');
-      }
+  public closeCommandDropdown(): void {
+    this.commandDropdown.classList.add('hidden');
+    this.btnCommandMenu.classList.remove('active');
+  }
 
-      if (this.scene.selectedBuildType === t) {
-        itemEl.classList.add('selected');
-      } else {
-        itemEl.classList.remove('selected');
-      }
-    });
+  public closeAllMenus(): void {
+    this.closeRadialBuildMenu();
+    this.closeContextNodeMenu();
+    this.closeCommandDropdown();
+    this.perfLabModal.classList.add('hidden');
+    this.scene.selectedTowerId = null;
   }
 
   private bindEvents(): void {
@@ -461,11 +465,10 @@ export class UIManager {
       GlobalSoundFX.playUIClick();
     });
 
-    // Speed Controls (Desktop)
+    // Speed Controls
     this.btnPause.addEventListener('click', () => {
       const isPaused = this.engine.togglePause();
       this.btnPause.classList.toggle('active', isPaused);
-      this.mBtnPause?.classList.toggle('active', isPaused);
       GlobalSoundFX.playUIClick();
     });
 
@@ -473,97 +476,70 @@ export class UIManager {
       this.speedBtns[s]?.addEventListener('click', () => {
         this.engine.setSpeed(s as GameSpeed);
         this.btnPause.classList.remove('active');
-        this.mBtnPause?.classList.remove('active');
         [1, 2, 4].forEach(k => {
           this.speedBtns[k]?.classList.remove('active');
-          this.mSpeedBtns[k]?.classList.remove('active');
         });
         this.speedBtns[s]?.classList.add('active');
-        this.mSpeedBtns[s]?.classList.add('active');
         GlobalSoundFX.playUIClick();
       });
     });
 
-    // Speed Controls (Mobile Drawer)
-    this.mBtnPause?.addEventListener('click', () => {
-      const isPaused = this.engine.togglePause();
-      this.btnPause.classList.toggle('active', isPaused);
-      this.mBtnPause.classList.toggle('active', isPaused);
+    // Orbital Command Dropdown
+    this.btnCommandMenu?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.commandDropdown.classList.toggle('hidden');
+      this.btnCommandMenu.classList.toggle('active', !this.commandDropdown.classList.contains('hidden'));
       GlobalSoundFX.playUIClick();
     });
 
-    [1, 2, 4].forEach(s => {
-      this.mSpeedBtns[s]?.addEventListener('click', () => {
-        this.engine.setSpeed(s as GameSpeed);
-        this.btnPause.classList.remove('active');
-        this.mBtnPause?.classList.remove('active');
-        [1, 2, 4].forEach(k => {
-          this.speedBtns[k]?.classList.remove('active');
-          this.mSpeedBtns[k]?.classList.remove('active');
-        });
-        this.speedBtns[s]?.classList.add('active');
-        this.mSpeedBtns[s]?.classList.add('active');
-        GlobalSoundFX.playUIClick();
-      });
-    });
-
-    // Audio Toggle
-    const handleAudioToggle = () => {
-      const muted = GlobalSoundFX.toggleMute();
-      const icon = muted ? '🔇' : '🔊';
-      if (this.btnAudio) this.btnAudio.textContent = icon;
-      if (this.mBtnAudio) this.mBtnAudio.textContent = `${icon} SOUND`;
-      GlobalSoundFX.playUIClick();
-    };
-    this.btnAudio?.addEventListener('click', handleAudioToggle);
-    this.mBtnAudio?.addEventListener('click', handleAudioToggle);
-
-    // Fullscreen Toggle
-    const handleFullscreen = () => {
-      this.scene.toggleFullscreen();
-      GlobalSoundFX.playUIClick();
-    };
-    this.btnFullscreen?.addEventListener('click', handleFullscreen);
-    this.mBtnFullscreen?.addEventListener('click', handleFullscreen);
-
-    // Radar Toggle
-    const handleRadarToggle = () => {
-      this.radarContainer.classList.toggle('hidden');
-      GlobalSoundFX.playUIClick();
-    };
-    this.btnRadarToggle?.addEventListener('click', handleRadarToggle);
-    this.mBtnRadar?.addEventListener('click', handleRadarToggle);
-    this.btnCloseRadar?.addEventListener('click', () => {
-      this.radarContainer.classList.add('hidden');
-      GlobalSoundFX.playUIClick();
-    });
-
-    // Mobile Hamburger Menu Toggle
-    this.btnMobileMenu?.addEventListener('click', () => {
-      this.mobileMenuDrawer.classList.toggle('hidden');
-      GlobalSoundFX.playUIClick();
-    });
-
-    // Mobile All Towers Drawer Toggle
-    this.btnMoreTowers?.addEventListener('click', () => {
-      this.towerDrawerModal.classList.remove('hidden');
-      GlobalSoundFX.playUIClick();
-    });
-    this.drawerCloseBtn?.addEventListener('click', () => {
-      this.towerDrawerModal.classList.add('hidden');
-      GlobalSoundFX.playUIClick();
-    });
-    this.drawerBackdrop?.addEventListener('click', () => {
-      this.towerDrawerModal.classList.add('hidden');
+    // Close command dropdown on outside click
+    window.addEventListener('click', (e) => {
+      if (!this.commandDropdown.contains(e.target as Node) && e.target !== this.btnCommandMenu) {
+        this.closeCommandDropdown();
+      }
     });
 
     // Tactical Actions
     this.btnTacticalEmp?.addEventListener('click', () => {
       this.triggerTacticalEMP();
+      this.closeCommandDropdown();
     });
 
     this.btnTacticalBombard?.addEventListener('click', () => {
       this.triggerTacticalBombardment();
+      this.closeCommandDropdown();
+    });
+
+    this.btnTacticalOvercharge?.addEventListener('click', () => {
+      this.triggerTacticalOvercharge();
+      this.closeCommandDropdown();
+    });
+
+    // Settings Modal Toggle (⚙ Button)
+    this.btnSettingsModal?.addEventListener('click', () => {
+      this.togglePerfLab();
+    });
+
+    // System Settings Inside Modal
+    this.btnAudioToggle?.addEventListener('click', () => {
+      const muted = GlobalSoundFX.toggleMute();
+      this.btnAudioToggle.textContent = muted ? '🔇 SOUND: OFF' : '🔊 SOUND: ON';
+      GlobalSoundFX.playUIClick();
+    });
+
+    this.btnFullscreenToggle?.addEventListener('click', () => {
+      this.scene.toggleFullscreen();
+      GlobalSoundFX.playUIClick();
+    });
+
+    this.btnRadarToggle?.addEventListener('click', () => {
+      this.radarContainer.classList.toggle('hidden');
+      GlobalSoundFX.playUIClick();
+    });
+
+    this.btnCloseRadar?.addEventListener('click', () => {
+      this.radarContainer.classList.add('hidden');
+      GlobalSoundFX.playUIClick();
     });
 
     // Wave Launch Action
@@ -572,63 +548,75 @@ export class UIManager {
       GlobalSoundFX.playUIClick();
     });
 
-    // Tower Selection Callback from Scene
-    this.scene.onTowerSelected = (towerId: number | null) => {
-      this.updateTowerInspectPanel(towerId);
+    // Node & Tower Selection Callbacks from Scene
+    this.scene.onNodeClicked = (node: DefenseNodeDef, screenPos: { x: number; y: number }) => {
+      this.openRadialBuildMenu(node, screenPos);
+    };
+
+    this.scene.onTowerSelected = (towerId: number | null, screenPos?: { x: number; y: number }) => {
+      if (towerId !== null) {
+        this.openContextNodeMenu(towerId, screenPos);
+      } else {
+        this.closeAllMenus();
+      }
     };
 
     this.scene.onTowerPlaced = (type: TowerType) => {
       GlobalSoundFX.playBuild();
-      this.updateBuildCardSelection();
-      // Track towers
       this.totalCreditsEarned += 0;
       this.mvpKills[type] = this.mvpKills[type] || 0;
     };
 
-    // Close Context Inspector (Deselect)
-    this.ciCloseBtn?.addEventListener('click', () => {
+    // Radial Build Menu Close
+    this.rbmCloseBtn?.addEventListener('click', () => {
+      this.closeRadialBuildMenu();
+      GlobalSoundFX.playUIClick();
+    });
+
+    // Context Node Inspector Buttons
+    this.cnmCloseBtn?.addEventListener('click', () => {
+      this.closeContextNodeMenu();
       this.scene.selectedTowerId = null;
-      this.updateTowerInspectPanel(null);
       GlobalSoundFX.playUIClick();
     });
 
     // Upgrade Tower Button
-    this.ciBtnUpgrade?.addEventListener('click', () => {
+    this.cnmBtnUpgrade?.addEventListener('click', () => {
       if (this.scene.selectedTowerId !== null) {
         const t = this.engine.entityMgr.towers.find(tow => tow.id === this.scene.selectedTowerId);
         if (t && t.currentStats.upgradeCost > 0) {
           if (this.engine.economySystem.spendCredits(t.currentStats.upgradeCost)) {
             this.engine.entityMgr.upgradeTower(t);
             GlobalSoundFX.playUpgrade();
-            this.updateTowerInspectPanel(t.id);
+            this.openContextNodeMenu(t.id);
           }
         }
       }
     });
 
-    // Sell Tower Button
-    this.ciBtnSell?.addEventListener('click', () => {
+    // Decommission (Sell) Tower Button
+    this.cnmBtnSell?.addEventListener('click', () => {
       if (this.scene.selectedTowerId !== null) {
         const t = this.engine.entityMgr.towers.find(tow => tow.id === this.scene.selectedTowerId);
         if (t) {
           this.engine.economySystem.addCredits(t.currentStats.sellValue);
           this.engine.entityMgr.removeTower(t.id);
           GlobalSoundFX.playSell();
+          this.closeContextNodeMenu();
           this.scene.selectedTowerId = null;
-          this.updateTowerInspectPanel(null);
         }
       }
     });
 
-    // Target Strategy Toggle Button (Cycles strategies)
-    this.ciTargetToggle?.addEventListener('click', () => {
+    // Target Strategy Toggle Button
+    this.cnmTargetToggle?.addEventListener('click', () => {
       if (this.scene.selectedTowerId !== null) {
         const t = this.engine.entityMgr.towers.find(tow => tow.id === this.scene.selectedTowerId);
         if (t) {
           const curIdx = this.targetingCycle.indexOf(t.targetingStrategy);
           const nextIdx = (curIdx + 1) % this.targetingCycle.length;
           t.targetingStrategy = this.targetingCycle[nextIdx];
-          this.ciTargetToggle.textContent = `${t.targetingStrategy.toUpperCase()} ▾`;
+          this.cnmTargetToggle.textContent = `${t.targetingStrategy.toUpperCase()} ▾`;
           GlobalSoundFX.playUIClick();
         }
       }
@@ -776,17 +764,24 @@ export class UIManager {
         const idx = parseInt(e.key, 10) - 1;
         const type = types[idx];
         if (type) {
-          const curRound = this.engine.waveSystem.currentWaveNumber;
-          const def = TOWER_DEFINITIONS[type];
-          if (curRound < def.unlockWave) {
-            this.showBanner('LOCKED SCHEMATIC', `${def.name} unlocks at Round ${def.unlockWave}.`);
-            return;
+          const targetNode = this.activeNodeForBuild || this.scene.hoveredNode;
+          if (targetNode) {
+            const def = TOWER_DEFINITIONS[type];
+            if (this.engine.waveSystem.currentWaveNumber < def.unlockWave) {
+              this.showBanner('LOCKED SCHEMATIC', `${def.name} unlocks at Round ${def.unlockWave}.`);
+              return;
+            }
+            if (this.engine.economySystem.credits < def.baseCost) {
+              this.showBanner('INSUFFICIENT CREDITS', `${def.name} requires $${def.baseCost}.`);
+              return;
+            }
+            this.scene.buildTowerOnNode(targetNode, type);
+            this.closeRadialBuildMenu();
+            GlobalSoundFX.playBuild();
+          } else {
+            this.scene.selectedBuildType = (this.scene.selectedBuildType === type) ? null : type;
+            GlobalSoundFX.playUIClick();
           }
-          this.scene.selectedBuildType = (this.scene.selectedBuildType === type) ? null : type;
-          this.scene.selectedTowerId = null;
-          this.updateTowerInspectPanel(null);
-          this.updateBuildCardSelection();
-          GlobalSoundFX.playUIClick();
         }
       }
 
@@ -799,7 +794,6 @@ export class UIManager {
         }
         const isPaused = this.engine.togglePause();
         this.btnPause.classList.toggle('active', isPaused);
-        this.mBtnPause?.classList.toggle('active', isPaused);
         GlobalSoundFX.playUIClick();
       }
 
@@ -819,18 +813,59 @@ export class UIManager {
         this.triggerTacticalBombardment();
       }
 
-      // Esc for Deselect
-      if (e.key === 'Escape') {
-        this.scene.selectedTowerId = null;
-        this.scene.selectedBuildType = null;
-        this.updateTowerInspectPanel(null);
-        this.towerDrawerModal.classList.add('hidden');
-        this.mobileMenuDrawer.classList.add('hidden');
-        this.perfLabModal.classList.add('hidden');
-        this.updateBuildCardSelection();
+      // R for Orbital Overcharge
+      if (e.key.toLowerCase() === 'r') {
+        this.triggerTacticalOvercharge();
       }
 
-      // F3 for Perf Lab
+      // U for Upgrade Selected Tower
+      if (e.key.toLowerCase() === 'u') {
+        if (this.scene.selectedTowerId !== null) {
+          const t = this.engine.entityMgr.towers.find(tow => tow.id === this.scene.selectedTowerId);
+          if (t && t.currentStats.upgradeCost > 0) {
+            if (this.engine.economySystem.spendCredits(t.currentStats.upgradeCost)) {
+              this.engine.entityMgr.upgradeTower(t);
+              GlobalSoundFX.playUpgrade();
+              this.openContextNodeMenu(t.id);
+            }
+          }
+        }
+      }
+
+      // X for Decommission (Sell) Selected Tower
+      if (e.key.toLowerCase() === 'x') {
+        if (this.scene.selectedTowerId !== null) {
+          const t = this.engine.entityMgr.towers.find(tow => tow.id === this.scene.selectedTowerId);
+          if (t) {
+            this.engine.economySystem.addCredits(t.currentStats.sellValue);
+            this.engine.entityMgr.removeTower(t.id);
+            GlobalSoundFX.playSell();
+            this.closeContextNodeMenu();
+            this.scene.selectedTowerId = null;
+          }
+        }
+      }
+
+      // T for Cycle Targeting Strategy
+      if (e.key.toLowerCase() === 't') {
+        if (this.scene.selectedTowerId !== null) {
+          const t = this.engine.entityMgr.towers.find(tow => tow.id === this.scene.selectedTowerId);
+          if (t) {
+            const curIdx = this.targetingCycle.indexOf(t.targetingStrategy);
+            const nextIdx = (curIdx + 1) % this.targetingCycle.length;
+            t.targetingStrategy = this.targetingCycle[nextIdx];
+            this.cnmTargetToggle.textContent = `${t.targetingStrategy.toUpperCase()} ▾`;
+            GlobalSoundFX.playUIClick();
+          }
+        }
+      }
+
+      // Esc for Deselect / Close All Menus
+      if (e.key === 'Escape') {
+        this.closeAllMenus();
+      }
+
+      // F3 for Settings & Perf Lab
       if (e.key === 'F3') {
         e.preventDefault();
         this.togglePerfLab();
@@ -857,6 +892,17 @@ export class UIManager {
       this.updateHUD();
     } else {
       this.showBanner('INSUFFICIENT CREDITS', 'Bombardment strike requires $300 credits.');
+    }
+  }
+
+  public triggerTacticalOvercharge(): void {
+    if (this.engine.economySystem.spendCredits(250)) {
+      this.engine.entityMgr.triggerOrbitalOvercharge(8);
+      GlobalSoundFX.playUpgrade();
+      this.showBanner('ORBITAL OVERCHARGE ACTIVE', '+50% attack rate & +35% damage for 8s!');
+      this.updateHUD();
+    } else {
+      this.showBanner('INSUFFICIENT CREDITS', 'Orbital Overcharge requires $250 credits.');
     }
   }
 
@@ -900,6 +946,7 @@ export class UIManager {
     // Tactical buttons state
     if (this.btnTacticalEmp) this.btnTacticalEmp.disabled = (eco.credits < 200);
     if (this.btnTacticalBombard) this.btnTacticalBombard.disabled = (eco.credits < 300);
+    if (this.btnTacticalOvercharge) this.btnTacticalOvercharge.disabled = (eco.credits < 250);
 
     // Wave Action Button State
     if (wave.waveInProgress) {
@@ -914,65 +961,32 @@ export class UIManager {
       }
     }
 
-    this.updateBuildCardSelection();
-  }
-
-  public updateTowerInspectPanel(towerId: number | null): void {
-    if (towerId === null) {
-      this.contextInspector.classList.add('hidden');
-      this.buildDeckWrapper.classList.remove('hidden');
-      return;
+    // Update Radial Build Menu card affordability if currently visible
+    if (this.radialBuildMenu && !this.radialBuildMenu.classList.contains('hidden') && this.activeNodeForBuild) {
+      const cards = this.rbmGrid.querySelectorAll('.rbm-card');
+      cards.forEach(c => {
+        const cardEl = c as HTMLElement;
+        const type = cardEl.dataset.towerType as TowerType;
+        if (type) {
+          const def = TOWER_DEFINITIONS[type];
+          const isLocked = wave.currentWaveNumber < def.unlockWave;
+          if (!isLocked) {
+            cardEl.classList.toggle('disabled', eco.credits < def.baseCost);
+          }
+        }
+      });
     }
 
-    const t = this.engine.entityMgr.towers.find(tow => tow.id === towerId);
-    if (!t) {
-      this.contextInspector.classList.add('hidden');
-      this.buildDeckWrapper.classList.remove('hidden');
-      return;
+    // Update Context Node Menu upgrade button affordability if visible
+    if (this.contextNodeMenu && !this.contextNodeMenu.classList.contains('hidden') && this.scene.selectedTowerId !== null) {
+      const t = this.engine.entityMgr.towers.find(tow => tow.id === this.scene.selectedTowerId);
+      if (t) {
+        const isMax = (t.level >= TOWER_DEFINITIONS[t.type].levels.length);
+        if (!isMax) {
+          this.cnmBtnUpgrade.disabled = (eco.credits < t.currentStats.upgradeCost);
+        }
+      }
     }
-
-    const def = TOWER_DEFINITIONS[t.type];
-    const stats = t.currentStats;
-    const isMax = (t.level >= def.levels.length);
-    const nextStats = isMax ? stats : def.levels[t.level];
-
-    // Morph dock into Context Inspector
-    this.buildDeckWrapper.classList.add('hidden');
-    this.contextInspector.classList.remove('hidden');
-
-    this.ciIcon.textContent = def.iconChar || '◈';
-    this.ciName.textContent = def.name.toUpperCase();
-    this.ciTier.textContent = `MK ${t.level} DEFENSE // ${def.role.toUpperCase()}`;
-
-    // Comparison Stats
-    const curRate = Math.round((1 / stats.attackInterval) * 10) / 10;
-    const nextRate = Math.round((1 / nextStats.attackInterval) * 10) / 10;
-    const curDps = Math.round(stats.damage * curRate * 10) / 10;
-    const nextDps = Math.round(nextStats.damage * nextRate * 10) / 10;
-
-    if (isMax) {
-      this.ciDmg.textContent = `${stats.damage} (MAX)`;
-      this.ciRange.textContent = `${stats.range}`;
-      this.ciRate.textContent = `${curRate}/s`;
-      this.ciDps.textContent = `${curDps}`;
-      this.ciBtnUpgrade.disabled = true;
-      this.ciUpgradeTitle.textContent = `MAX LEVEL`;
-      this.ciUpgradeCost.textContent = `---`;
-    } else {
-      this.ciDmg.textContent = `${stats.damage} → ${nextStats.damage}`;
-      this.ciRange.textContent = `${stats.range} → ${nextStats.range}`;
-      this.ciRate.textContent = `${curRate}/s → ${nextRate}/s`;
-      this.ciDps.textContent = `${curDps} → ${nextDps}`;
-      this.ciBtnUpgrade.disabled = (this.engine.economySystem.credits < stats.upgradeCost);
-      this.ciUpgradeTitle.textContent = `UPGRADE MK ${t.level + 1}`;
-      this.ciUpgradeCost.textContent = `$${stats.upgradeCost}`;
-    }
-
-    // Sell value
-    this.ciSellCost.textContent = `+$${stats.sellValue}`;
-
-    // Target strategy button
-    this.ciTargetToggle.textContent = `${t.targetingStrategy.toUpperCase()} ▾`;
   }
 
   public showBanner(title: string, sub: string): void {

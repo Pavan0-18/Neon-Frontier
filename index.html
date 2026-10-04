@@ -24,71 +24,81 @@
         <span class="danger-text">BASE IN IMMEDIATE DANGER: HOSTILES IN PROXIMITY</span>
       </div>
 
-      <!-- Top Status Bar -->
+      <!-- Minimalist Futuristic Top Bar -->
       <header class="hud-header">
         <div class="hud-branding">
           <div class="logo-glitch" data-text="NEON FRONTIER">NEON FRONTIER</div>
-          <div class="logo-sub">LAST ORBIT // ORBITAL DEFENSE</div>
         </div>
 
         <div class="hud-stats">
-          <div class="stat-card" id="core-health-card">
-            <span class="stat-label">⚡ ENERGY</span>
+          <div class="stat-pill" id="core-health-card">
+            <span class="stat-label">⚡ CORE</span>
             <div class="health-bar-container">
               <div id="core-health-fill" class="health-bar-fill"></div>
             </div>
             <span id="core-health-text" class="stat-value">100 / 100</span>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-pill">
             <span class="stat-label">CREDITS</span>
             <span id="credits-text" class="stat-value neon-cyan">$850</span>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-pill">
             <span class="stat-label">ROUND</span>
             <span id="wave-text" class="stat-value neon-amber">1 / 50</span>
           </div>
 
-          <div class="stat-card stat-score">
+          <div class="stat-pill stat-score desktop-only">
             <span class="stat-label">SCORE</span>
             <span id="score-text" class="stat-value">0</span>
           </div>
         </div>
 
         <div class="hud-controls">
-          <div class="speed-group desktop-only">
+          <!-- Orbital Command Trigger & Dropdown -->
+          <div class="command-trigger-wrapper">
+            <button id="btn-command-menu" class="hud-btn cmd-trigger-btn" title="Orbital Strike Command [Q / E / R]">
+              <span class="cmd-icon">⚡</span>
+              <span class="cmd-text">COMMAND</span>
+              <span class="cmd-caret">▾</span>
+            </button>
+            <div id="command-dropdown" class="command-dropdown hidden">
+              <div class="cmd-dropdown-title">ORBITAL TACTICAL CALL-INS</div>
+              <button id="btn-tactical-emp" class="cmd-item-btn" title="Orbital EMP Discharge [Q]">
+                <div class="cmd-item-info">
+                  <div class="cmd-item-name"><span class="cmd-key">[Q]</span> ORBITAL EMP</div>
+                  <div class="cmd-item-sub">Paralyze sector hostiles 4s & wipe shields</div>
+                </div>
+                <span class="cmd-item-cost">$200</span>
+              </button>
+              <button id="btn-tactical-bombard" class="cmd-item-btn" title="Orbital Bombardment Strike [E]">
+                <div class="cmd-item-info">
+                  <div class="cmd-item-name"><span class="cmd-key">[E]</span> BOMBARDMENT</div>
+                  <div class="cmd-item-sub">1,500 AoE heavy kinetic orbital impact</div>
+                </div>
+                <span class="cmd-item-cost">$300</span>
+              </button>
+              <button id="btn-tactical-overcharge" class="cmd-item-btn" title="Orbital Overcharge [R]">
+                <div class="cmd-item-info">
+                  <div class="cmd-item-name"><span class="cmd-key">[R]</span> OVERCHARGE</div>
+                  <div class="cmd-item-sub">+50% fire rate & +35% damage for 8s</div>
+                </div>
+                <span class="cmd-item-cost">$250</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="speed-group">
             <button id="btn-pause" class="hud-btn" title="Pause / Resume (Space / P)">⏸</button>
             <button id="btn-speed-1" class="hud-btn active" title="1x Speed">1×</button>
             <button id="btn-speed-2" class="hud-btn" title="2x Speed">2×</button>
             <button id="btn-speed-4" class="hud-btn" title="4x Speed">4×</button>
           </div>
-          <button id="btn-radar-toggle" class="hud-btn desktop-only" title="Toggle Radar Mini-Map">📡</button>
-          <button id="btn-audio" class="hud-btn desktop-only" title="Toggle Sound">🔊</button>
-          <button id="btn-fullscreen" class="hud-btn desktop-only" title="Toggle Fullscreen (F)">⛶</button>
-          <button id="btn-perf-lab" class="hud-btn dev-btn desktop-only" title="Performance Lab (F3)">⚙ DEV [F3]</button>
-          <button id="btn-mobile-menu" class="hud-btn mobile-menu-toggle" title="Menu">☰</button>
+
+          <button id="btn-settings-modal" class="hud-btn" title="Settings & Dev Lab (F3)">⚙</button>
         </div>
       </header>
-
-      <!-- Mobile Dropdown Menu -->
-      <div id="mobile-menu-drawer" class="mobile-menu-drawer hidden">
-        <div class="mobile-menu-row">
-          <span class="m-menu-label">SPEED:</span>
-          <div class="speed-group">
-            <button id="m-btn-pause" class="hud-btn">⏸</button>
-            <button id="m-btn-speed-1" class="hud-btn active">1×</button>
-            <button id="m-btn-speed-2" class="hud-btn">2×</button>
-            <button id="m-btn-speed-4" class="hud-btn">4×</button>
-          </div>
-        </div>
-        <div class="mobile-menu-row">
-          <button id="m-btn-audio" class="hud-btn menu-action-btn">🔊 SOUND</button>
-          <button id="m-btn-fullscreen" class="hud-btn menu-action-btn">⛶ FULLSCREEN</button>
-          <button id="m-btn-radar" class="hud-btn menu-action-btn">📡 RADAR</button>
-          <button id="m-btn-perf" class="hud-btn menu-action-btn dev-btn">⚙ DEV LAB</button>
-        </div>
-      </div>
 
       <!-- Radar Mini-map Widget -->
       <div id="radar-container" class="radar-container hidden">
@@ -105,21 +115,7 @@
         <div id="banner-sub" class="banner-sub">ORBITAL BEHEMOTH ENTERING SECTOR</div>
       </div>
 
-      <!-- Tactical Defense Call-ins -->
-      <div id="tactical-actions" class="tactical-actions">
-        <button id="btn-tactical-emp" class="btn-tactical" title="Orbital EMP Discharge [Q] (Stuns lane for 4s, wipes shields)">
-          <span class="tac-key">[Q]</span>
-          <span class="tac-name">ORBITAL EMP</span>
-          <span class="tac-cost">$200</span>
-        </button>
-        <button id="btn-tactical-bombard" class="btn-tactical" title="Orbital Bombardment [E] (1,200 Area Damage)">
-          <span class="tac-key">[E]</span>
-          <span class="tac-name">BOMBARDMENT</span>
-          <span class="tac-cost">$300</span>
-        </button>
-      </div>
-
-      <!-- Wave / Round Action Button -->
+      <!-- Floating Wave / Round Action Pill -->
       <div id="wave-action-container" class="wave-action-container">
         <button id="btn-start-wave" class="btn-start-wave">
           <span class="wave-btn-pulse"></span>
@@ -128,76 +124,89 @@
         <div id="wave-auto-countdown" class="wave-auto-countdown">Incoming in 15s...</div>
       </div>
 
-      <!-- Bottom Interactive Dock (Morphs between Build Deck & Context-Aware Inspector) -->
-      <footer class="hud-footer">
-        <!-- 1. Normal State: Build Deck -->
-        <div class="build-deck-wrapper" id="build-deck-wrapper">
-          <div class="build-deck" id="build-deck">
-            <!-- Populated with compact tower cards -->
+      <!-- Floating In-World Radial Build Menu (Anchored to clicked empty node) -->
+      <div id="radial-build-menu" class="radial-build-menu hidden">
+        <div class="rbm-panel">
+          <div class="rbm-header">
+            <div class="rbm-node-info">
+              <span class="rbm-node-title" id="rbm-node-title">DEFENSE NODE</span>
+              <span class="rbm-node-bonus" id="rbm-node-bonus">STANDARD ANCHOR</span>
+            </div>
+            <button id="rbm-close-btn" class="rbm-close-btn" title="Close (Esc)">&times;</button>
           </div>
-          <button id="btn-more-towers" class="btn-more-towers" title="View All Defensive Towers">
-            <span class="more-dots">•••</span>
-            <small>ALL</small>
+          <div class="rbm-grid" id="rbm-grid">
+            <!-- Dynamically populated with 8 orbital defense structures -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating In-World Context Node Inspector (Anchored to clicked occupied node) -->
+      <div id="context-node-menu" class="context-node-menu hidden">
+        <div class="cnm-header">
+          <div class="cnm-identity">
+            <span class="cnm-icon" id="cnm-icon">⚡</span>
+            <div>
+              <div class="cnm-name" id="cnm-name">PULSE CANNON</div>
+              <div class="cnm-tier" id="cnm-tier">MK I DEFENSE</div>
+            </div>
+          </div>
+          <button class="cnm-close-btn" id="cnm-close-btn" title="Deselect (Esc)">&times;</button>
+        </div>
+
+        <div class="cnm-bonus-badge" id="cnm-bonus-badge">
+          POWER NODE: +20% FIRING RATE
+        </div>
+
+        <div class="cnm-stats-grid">
+          <div class="cnm-stat">
+            <span class="cnm-label">DAMAGE</span>
+            <span class="cnm-val" id="cnm-dmg">38 → 72</span>
+          </div>
+          <div class="cnm-stat">
+            <span class="cnm-label">RANGE</span>
+            <span class="cnm-val" id="cnm-range">165 → 190</span>
+          </div>
+          <div class="cnm-stat">
+            <span class="cnm-label">RATE</span>
+            <span class="cnm-val" id="cnm-rate">2.0/s → 2.4/s</span>
+          </div>
+          <div class="cnm-stat">
+            <span class="cnm-label">DPS</span>
+            <span class="cnm-val" id="cnm-dps">76.0 → 172.8</span>
+          </div>
+        </div>
+
+        <div class="cnm-actions">
+          <button id="cnm-btn-upgrade" class="cnm-btn cnm-btn-upgrade">
+            <span id="cnm-upgrade-title">UPGRADE MK II</span>
+            <span id="cnm-upgrade-cost">$110</span>
           </button>
-        </div>
-
-        <!-- 2. Selected State: Context-Aware Tower Inspector -->
-        <div class="context-inspector hidden" id="context-inspector">
-          <div class="ci-header">
-            <div class="ci-identity">
-              <span class="ci-icon" id="ci-icon">⚡</span>
-              <div>
-                <div class="ci-name" id="ci-name">PULSE CANNON</div>
-                <div class="ci-tier" id="ci-tier">MK I DEFENSE</div>
-              </div>
-            </div>
-            <button class="ci-close-btn" id="ci-close-btn" title="Deselect (Esc)">&times;</button>
-          </div>
-
-          <div class="ci-stats-row">
-            <div class="ci-stat">
-              <span class="ci-label">DAMAGE</span>
-              <span class="ci-val" id="ci-dmg">38 → 72</span>
-            </div>
-            <div class="ci-stat">
-              <span class="ci-label">RANGE</span>
-              <span class="ci-val" id="ci-range">165 → 190</span>
-            </div>
-            <div class="ci-stat">
-              <span class="ci-label">FIRE RATE</span>
-              <span class="ci-val" id="ci-rate">2.0/s → 2.4/s</span>
-            </div>
-            <div class="ci-stat">
-              <span class="ci-label">DPS</span>
-              <span class="ci-val" id="ci-dps">76.0 → 172.8</span>
-            </div>
-          </div>
-
-          <div class="ci-actions-row">
-            <button id="ci-btn-upgrade" class="ci-btn ci-btn-upgrade">
-              <span class="ci-btn-title" id="ci-upgrade-title">UPGRADE MK II</span>
-              <span class="ci-btn-cost" id="ci-upgrade-cost">$110</span>
-            </button>
-            <button id="ci-btn-sell" class="ci-btn ci-btn-sell">
-              <span class="ci-btn-title">DECOMMISSION</span>
-              <span class="ci-btn-cost" id="ci-sell-cost">+$66</span>
-            </button>
-            <div class="ci-targeting-group">
-              <span class="ci-target-label">TARGET:</span>
-              <button id="ci-target-toggle" class="ci-target-toggle">FIRST ▾</button>
-            </div>
+          <button id="cnm-btn-sell" class="cnm-btn cnm-btn-sell">
+            <span>DECOMMISSION</span>
+            <span id="cnm-sell-cost">+$66</span>
+          </button>
+          <div class="cnm-targeting">
+            <span class="cnm-target-label">TARGET:</span>
+            <button id="cnm-target-toggle" class="cnm-target-btn">FIRST ▾</button>
           </div>
         </div>
-      </footer>
+      </div>
 
       <!-- Performance Lab Panel (F3) -->
       <div id="perf-lab-modal" class="perf-modal hidden">
         <div class="perf-modal-backdrop"></div>
         <div class="perf-modal-content">
           <div class="perf-header">
-            <div class="perf-title">⚡ PERFORMANCE LAB & BENCHMARK SUITE</div>
-            <div class="perf-subtitle">REAL-TIME SIMULATION & RENDERING INSTRUMENTATION</div>
+            <div class="perf-title">⚡ SYSTEM SETTINGS & PERFORMANCE LAB</div>
+            <div class="perf-subtitle">ORBITAL STATION CONFIGURATION & REAL-TIME ENGINE INSTRUMENTATION [F3]</div>
             <button id="btn-close-perf" class="close-perf-btn">&times;</button>
+          </div>
+
+          <!-- Quick System Controls -->
+          <div class="system-quick-settings">
+            <button id="btn-audio-toggle" class="sys-btn" title="Toggle Audio (Mute / Unmute)">🔊 SOUND: ON</button>
+            <button id="btn-fullscreen-toggle" class="sys-btn" title="Toggle Fullscreen (F)">⛶ FULLSCREEN</button>
+            <button id="btn-radar-toggle" class="sys-btn" title="Toggle Radar Mini-Map">📡 RADAR OVERLAY</button>
           </div>
 
           <div class="perf-grid">
