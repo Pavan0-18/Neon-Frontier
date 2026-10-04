@@ -13,23 +13,31 @@
 ## 2. Features
 
 ### Core Gameplay
-- **50 Complete Progressive Waves:** Balanced difficulty scaling with custom enemy compositions, wave countdowns, and manual wave initiation.
-- **5 Distinct Tower Classes:**
+- **50 Strategic Progressive Rounds:** Structured round progression with dynamic difficulty scaling, tactical wave descriptions, boss alert mutators, and manual countdown skip.
+- **8 Distinct Defense Tower Options:**
   - **Pulse Cannon:** Rapid single-target energy turret.
-  - **Arc Tesla:** Multi-target chain lightning with damage falloff.
+  - **Arc Tesla:** Multi-target chain lightning with quadratic falloff.
   - **Plasma Mortar:** Heavy ballistic launcher with explosive splash radius.
   - **Cryo Beacon:** Area crowd control emitting tachyon slow pulses.
   - **Railgun:** Extreme-range kinetic penetrator targeting high-health threats.
-- **3 Upgrade Levels (MK I, MK II, MK III):** Visible level indicators, stat progressions, and scaling sell refund values (70% total invested cost).
+  - **Photon Laser:** Continuous thermal melt beam with progressive damage ramp-up against locked targets.
+  - **Orbital Flak:** Multi-pellet spread barrage shredding dense formations.
+  - **Singularity Well:** Spatial distortion vortex generating gravitational pull forces that drag enemies backward along their trajectory.
+- **Orbital Tactical Abilities:**
+  - **[Q] Orbital EMP:** Station-wide high-frequency pulse that neutralizes all active enemies in the sector with a 4.0-second shutdown.
+  - **[E] Orbital Bombardment:** Satellite kinetic strike unleashing 6 high-yield explosive orbital impact craters along hostile vectors.
+- **Active-Homing Target Tracking (Guaranteed Hit Registration):** Guided projectile vector correction ensures defenses never miss fast-moving hostiles across spline curves, eliminating frustrating overshoots.
+- **Full Screen Mode:** One-click toggle (`[F]` key or top bar `⛶ FULLSCREEN`) with auto-scaling WebGL canvas.
+- **3 Upgrade Levels (MK I, MK II, MK III):** Distinct visual indicators, stat progressions, and scaling sell refund values (70% total invested cost).
 - **5 Configurable Targeting Modes Per Tower:** `First`, `Last`, `Closest`, `Strongest`, `Weakest`.
-- **6 Distinct Enemy Types + 3 Unique Boss Encounters:**
-  - `Scout` (fast, low HP), `Drone` (standard), `Tank` (heavy armor), `Shield Unit` (absorbs damage), `Regenerator` (continuous HP recovery), `Swarm` (high-density clusters).
-  - **Orbital Behemoth (Wave 10 & 40):** Periodic EMP blast disabling nearby towers.
-  - **Warp Overlord (Wave 20):** Phase Shift state granting 75% damage mitigation.
-  - **Apex Prime Leviathan (Wave 30 & 50):** Carrier vessel spawning clusters of active escorts.
-- **Procedural Web Audio API Sound Synthesizer:** Fully offline sound synthesis for laser pulses, tesla arcs, explosions, railgun hypersonic cracks, alarms, and UI feedback with 0 external audio dependencies.
+- **7 Distinct Enemy Types + 3 Multi-Phase Boss Encounters:**
+  - `Scout` (fast, low HP), `Drone` (standard), `Tank` (heavy armor), `Shield Unit` (absorbs damage), `Regenerator` (continuous HP recovery), `Swarm` (high-density clusters), `Phantom` (hyper-speed cloaked strike craft).
+  - **Orbital Behemoth (Round 10 & 40):** Periodic EMP blast disabling nearby towers.
+  - **Warp Overlord (Round 20):** Phase Shift state granting 75% damage mitigation.
+  - **Apex Prime Leviathan (Round 30 & 50):** Carrier vessel spawning clusters of active escorts.
+- **Procedural Web Audio API Sound Synthesizer:** Fully offline sound synthesis for laser pulses, continuous beam hums, tesla arcs, explosions, railgun hypersonic cracks, alarms, and UI feedback with 0 external audio dependencies.
 - **Game Speed Controls:** `Pause` (freeze simulation without desync), `1×`, `2×`, `4×`.
-- **Holographic Cyberpunk HUD:** Energy core integrity, credits, wave counter, score, seed display, tower inspection cards, and range previews.
+- **Holographic Cyberpunk HUD:** Energy core integrity, credits, round counter, score, seed display, tower inspection cards, and range previews.
 - **Integrated Performance Lab (F3):** Live telemetry and interactive stress testing tools with seed-locked reproducibility.
 
 ---

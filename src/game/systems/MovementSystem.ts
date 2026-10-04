@@ -133,36 +133,59 @@ export class MovementSystem {
         continue;
       }
 
-      const px = this.entityMgr.projX[slot] + this.entityMgr.projVx[slot] * dt;
-      const py = this.entityMgr.projY[slot] + this.entityMgr.projVy[slot] * dt;
-      this.entityMgr.projX[slot] = px;
-      this.entityMgr.projY[slot] = py;
-
+      let px = this.entityMgr.projX[slot];
+      let py = this.entityMgr.projY[slot];
       const targetIdx = this.entityMgr.projTargetIdx[slot];
+      const speed = this.entityMgr.projSpeed[slot] || 700;
+      const step = speed * dt;
+      const projType = this.entityMgr.projType[slot];
       let hasHit = false;
 
-      // Check collision with target enemy or proximity
+      // Homing behavior for direct weapons (pulse, tesla, cryo, railgun, flak)
       if (targetIdx >= 0 && this.entityMgr.enemyActive[targetIdx] === 1) {
         const ex = this.entityMgr.enemyX[targetIdx];
         const ey = this.entityMgr.enemyY[targetIdx];
-        const r = this.entityMgr.enemyRadius[targetIdx] + 8;
-        if (Math.hypot(px - ex, py - ey) <= r) {
+        const dx = ex - px;
+        const dy = ey - py;
+        const dist = Math.hypot(dx, dy) || 1;
+        const hitRadius = this.entityMgr.enemyRadius[targetIdx] + 8;
+
+        if (dist <= step + hitRadius) {
+          // Direct hit guaranteed!
+          this.entityMgr.projX[slot] = ex;
+          this.entityMgr.projY[slot] = ey;
           hasHit = true;
           this.applyHitDamage(slot, targetIdx, statsOut);
+        } else {
+          // Home in directly towards the moving enemy
+          const dirX = dx / dist;
+          const dirY = dy / dist;
+          this.entityMgr.projVx[slot] = dirX * speed;
+          this.entityMgr.projVy[slot] = dirY * speed;
+          this.entityMgr.projX[slot] = px + dirX * step;
+          this.entityMgr.projY[slot] = py + dirY * step;
         }
       } else {
-        // If original target is dead, check proximity with any active enemy near projectile
+        // If original target died in transit, check nearby enemies or advance linear
+        px += this.entityMgr.projVx[slot] * dt;
+        py += this.entityMgr.projVy[slot] * dt;
+        this.entityMgr.projX[slot] = px;
+        this.entityMgr.projY[slot] = py;
+
+        // Proximity check with any active enemy
         const eCount = this.entityMgr.activeEnemyCount;
         const eIndices = this.entityMgr.activeEnemyIndices;
         for (let j = 0; j < eCount; j++) {
           const eslot = eIndices[j];
-          const ex = this.entityMgr.enemyX[eslot];
-          const ey = this.entityMgr.enemyY[eslot];
-          const r = this.entityMgr.enemyRadius[eslot] + 6;
-          if (Math.hypot(px - ex, py - ey) <= r) {
-            hasHit = true;
-            this.applyHitDamage(slot, eslot, statsOut);
-            break;
+          if (this.entityMgr.enemyActive[eslot] === 1) {
+            const ex = this.entityMgr.enemyX[eslot];
+            const ey = this.entityMgr.enemyY[eslot];
+            const r = this.entityMgr.enemyRadius[eslot] + 10;
+            if (Math.hypot(px - ex, py - ey) <= r) {
+              hasHit = true;
+              this.applyHitDamage(slot, eslot, statsOut);
+              break;
+            }
           }
         }
       }
@@ -268,12 +291,49 @@ export class MovementSystem {
       );
     }
 
+    // Flak Pellet Hit (Type 5)
+    if (projType === 5) {
+      this.damageSingleEnemy(enemySlot, rawDamage, statsOut);
+      this.entityMgr.spawnParticles(this.entityMgr.enemyX[enemySlot], this.entityMgr.enemyY[enemySlot], 0x34d399, 5, 0.9);
+      GlobalSoundFX.playHit();
+      return;
+    }
+
+    // Vortex Singularity Hit (Type 6)
+    if (projType === 6) {
+      const splashR = this.entityMgr.projSplashRadius[projSlot] || 110;
+      const pull = this.entityMgr.projPullForce[projSlot] || 60;
+      const hitX = this.entityMgr.enemyX[enemySlot];
+      const hitY = this.entityMgr.enemyY[enemySlot];
+      const splashRSq = splashR * splashR;
+
+      const eCount = this.entityMgr.activeEnemyCount;
+      const eIndices = this.entityMgr.activeEnemyIndices;
+
+      for (let j = 0; j < eCount; j++) {
+        const eslot = eIndices[j];
+        const dx = this.entityMgr.enemyX[eslot] - hitX;
+        const dy = this.entityMgr.enemyY[eslot] - hitY;
+        if (dx * dx + dy * dy <= splashRSq) {
+          // Pull enemy backward along the path!
+          this.entityMgr.enemyPathDist[eslot] = Math.max(0, this.entityMgr.enemyPathDist[eslot] - pull);
+          this.entityMgr.enemySlowTimer[eslot] = 2.5;
+          this.entityMgr.enemySlowFactor[eslot] = 0.4;
+          this.damageSingleEnemy(eslot, rawDamage, statsOut);
+        }
+      }
+
+      GlobalSoundFX.playMortarExplosion();
+      this.entityMgr.spawnParticles(hitX, hitY, 0x7c3aed, 24, 2.0);
+      return;
+    }
+
     // Standard Hit
     this.damageSingleEnemy(enemySlot, rawDamage, statsOut);
     GlobalSoundFX.playHit();
   }
 
-  private damageSingleEnemy(slot: number, damage: number, statsOut: CombatStatsEvent): void {
+  public damageSingleEnemy(slot: number, damage: number, statsOut: CombatStatsEvent): void {
     if (this.entityMgr.enemyActive[slot] === 0) return;
 
     let finalDamage = damage;

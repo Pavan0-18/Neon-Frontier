@@ -38,7 +38,7 @@
           </div>
 
           <div class="stat-card">
-            <span class="stat-label">WAVE</span>
+            <span class="stat-label">ROUND</span>
             <span id="wave-text" class="stat-value neon-amber">1 / 50</span>
           </div>
 
@@ -61,6 +61,7 @@
             <button id="btn-speed-4" class="hud-btn" title="4x Speed">4×</button>
           </div>
           <button id="btn-audio" class="hud-btn" title="Toggle Sound">🔊</button>
+          <button id="btn-fullscreen" class="hud-btn" title="Toggle Fullscreen (F)">⛶ FULLSCREEN</button>
           <button id="btn-perf-lab" class="hud-btn neon-btn-amber" title="Performance Lab (F3)">⚡ PERF LAB [F3]</button>
         </div>
       </header>
@@ -71,11 +72,25 @@
         <div id="banner-sub" class="banner-sub">ORBITAL BEHEMOTH ENTERING SECTOR</div>
       </div>
 
-      <!-- Wave Callout Action Button -->
+      <!-- Tactical Defense Call-ins -->
+      <div id="tactical-actions" class="tactical-actions">
+        <button id="btn-tactical-emp" class="btn-tactical" title="Orbital EMP Discharge [Q] (Stuns lane for 4s, wipes shields)">
+          <span class="tac-key">[Q]</span>
+          <span class="tac-name">ORBITAL EMP</span>
+          <span class="tac-cost">$200</span>
+        </button>
+        <button id="btn-tactical-bombard" class="btn-tactical" title="Orbital Bombardment [E] (1,200 Area Damage)">
+          <span class="tac-key">[E]</span>
+          <span class="tac-name">BOMBARDMENT</span>
+          <span class="tac-cost">$300</span>
+        </button>
+      </div>
+
+      <!-- Wave / Round Action Button -->
       <div id="wave-action-container" class="wave-action-container">
         <button id="btn-start-wave" class="btn-start-wave">
           <span class="wave-btn-pulse"></span>
-          <span id="wave-btn-label">INITIATE WAVE 1</span>
+          <span id="wave-btn-label">ENGAGE ROUND 1</span>
         </button>
         <div id="wave-auto-countdown" class="wave-auto-countdown">Incoming in 15s...</div>
       </div>
@@ -309,7 +324,7 @@
           <h2 class="modal-title">DEFENSE COLLAPSED</h2>
           <p class="modal-desc">Orbital core integrity dropped to zero. Swarm breach confirmed.</p>
           <div class="modal-stats">
-            <div><span>WAVES SURVIVED:</span> <strong id="go-wave">14 / 50</strong></div>
+            <div><span>ROUNDS SURVIVED:</span> <strong id="go-wave">14 / 50</strong></div>
             <div><span>ENEMIES ELIMINATED:</span> <strong id="go-kills">384</strong></div>
             <div><span>FINAL SCORE:</span> <strong id="go-score">14,290</strong></div>
           </div>
@@ -322,7 +337,7 @@
         <div class="modal-card modal-victory">
           <div class="modal-badge victory">SECTOR SECURED</div>
           <h2 class="modal-title">VICTORY ACHIEVED</h2>
-          <p class="modal-desc">All 50 assault waves defeated. The orbital core survived intact.</p>
+          <p class="modal-desc">All 50 defense rounds survived. The orbital colony core remains secure.</p>
           <div class="modal-stats">
             <div><span>TOTAL ELIMINATIONS:</span> <strong id="vic-kills">2,450</strong></div>
             <div><span>FINAL SCORE:</span> <strong id="vic-score">289,500</strong></div>

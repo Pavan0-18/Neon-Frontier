@@ -1,22 +1,25 @@
 import { EntityManager, TowerEntity } from '../entities/EntityManager';
 import { SpatialGrid } from '../spatial/SpatialGrid';
 import { GlobalSoundFX } from '../../audio/SoundFX';
+import { MovementSystem, CombatStatsEvent } from './MovementSystem';
 
 export class CombatSystem {
   public useSpatialGrid: boolean = true;
   private readonly entityMgr: EntityManager;
   private readonly spatialGrid: SpatialGrid;
+  private readonly movementSystem: MovementSystem;
 
   // Reusable candidate buffer
   private candidateIndices: Int32Array = new Int32Array(4096);
   private candidateCount: number = 0;
 
-  constructor(entityMgr: EntityManager, spatialGrid: SpatialGrid) {
+  constructor(entityMgr: EntityManager, spatialGrid: SpatialGrid, movementSystem: MovementSystem) {
     this.entityMgr = entityMgr;
     this.spatialGrid = spatialGrid;
+    this.movementSystem = movementSystem;
   }
 
-  public update(dt: number): void {
+  public update(dt: number, statsOut: CombatStatsEvent): void {
     const towers = this.entityMgr.towers;
     const towerCount = towers.length;
 
@@ -26,6 +29,46 @@ export class CombatSystem {
       // Handle EMP / Boss stun
       if (tower.stunTimer > 0) {
         tower.stunTimer -= dt;
+        continue;
+      }
+
+      // Special continuous thermal beam logic for Photon Laser
+      if (tower.type === 'laser') {
+        let target = tower.laserTargetIdx;
+        let valid = false;
+        if (target >= 0 && this.entityMgr.enemyActive[target] === 1) {
+          const dx = this.entityMgr.enemyX[target] - tower.x;
+          const dy = this.entityMgr.enemyY[target] - tower.y;
+          if (dx * dx + dy * dy <= tower.range * tower.range) {
+            valid = true;
+          }
+        }
+        if (!valid) {
+          target = this.findTarget(tower);
+          tower.laserTargetIdx = target;
+          tower.laserLockDuration = 0;
+        }
+
+        tower.targetEnemyIdx = target;
+
+        if (target !== -1) {
+          tower.laserLockDuration += dt;
+          if (tower.cooldownTimer > 0) {
+            tower.cooldownTimer -= dt;
+          }
+          if (tower.cooldownTimer <= 0) {
+            const ramp = Math.min(tower.currentStats.beamRampUp || 2.5, 1 + tower.laserLockDuration * 0.4);
+            const dmg = tower.damage * ramp;
+            this.movementSystem.damageSingleEnemy(target, dmg, statsOut);
+            if (this.entityMgr.enemyActive[target] === 0 || this.entityMgr.enemyHealth[target] <= 0) {
+              tower.laserTargetIdx = -1;
+              tower.laserLockDuration = 0;
+            }
+            tower.cooldownTimer = tower.attackInterval; // 0.1s tick
+          }
+        } else {
+          tower.laserLockDuration = 0;
+        }
         continue;
       }
 
@@ -242,6 +285,53 @@ export class CombatSystem {
           stats.projectileSpeed || 2200
         );
         GlobalSoundFX.playRailgun();
+        break;
+      }
+      case 'flak': {
+        // Multi-pellet spread
+        const pellets = stats.pelletCount || 5;
+        const baseAngle = Math.atan2(targetY - tower.y, targetX - tower.x);
+        const spreadTotal = 0.35; // radians spread
+        const spd = stats.projectileSpeed || 650;
+
+        for (let p = 0; p < pellets; p++) {
+          const offsetAngle = baseAngle - spreadTotal / 2 + (p / (pellets - 1)) * spreadTotal;
+          const tx = tower.x + Math.cos(offsetAngle) * 200;
+          const ty = tower.y + Math.sin(offsetAngle) * 200;
+
+          this.entityMgr.spawnProjectile(
+            5, // flak
+            tower.x,
+            tower.y,
+            targetIdx,
+            tx,
+            ty,
+            tower.damage,
+            spd
+          );
+        }
+        GlobalSoundFX.playPulseShoot();
+        break;
+      }
+      case 'vortex': {
+        this.entityMgr.spawnProjectile(
+          6, // vortex
+          tower.x,
+          tower.y,
+          targetIdx,
+          targetX,
+          targetY,
+          tower.damage,
+          stats.projectileSpeed || 420,
+          stats.splashRadius || 110,
+          0,
+          0,
+          0,
+          0.3,
+          2.0,
+          stats.pullForce || 50
+        );
+        GlobalSoundFX.playMortarLaunch();
         break;
       }
     }

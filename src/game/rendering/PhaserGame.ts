@@ -115,13 +115,16 @@ export class DefenseScene extends Phaser.Scene {
       boss_behemoth: { x: 210, y: 0, w: 60, h: 60 },
       boss_warp_lord: { x: 276, y: 0, w: 64, h: 64 },
       boss_mothership: { x: 346, y: 0, w: 72, h: 72 },
+      enemy_phantom: { x: 424, y: 0, w: 26, h: 26 },
 
       proj_pulse: { x: 0, y: 90, w: 12, h: 12 },
       proj_tesla: { x: 20, y: 90, w: 12, h: 12 },
       proj_mortar: { x: 40, y: 90, w: 20, h: 20 },
       proj_cryo: { x: 66, y: 90, w: 14, h: 14 },
       proj_railgun: { x: 86, y: 90, w: 16, h: 16 },
-      particle_spark: { x: 108, y: 90, w: 8, h: 8 }
+      proj_flak: { x: 108, y: 90, w: 12, h: 12 },
+      proj_vortex: { x: 126, y: 90, w: 18, h: 18 },
+      particle_spark: { x: 150, y: 90, w: 8, h: 8 }
     };
 
     // Helper to draw a glowing circle
@@ -196,6 +199,13 @@ export class DefenseScene extends Phaser.Scene {
     drawGlowCircle(382, 36, 32, '#ffaa00', '#fde047');
     drawDiamond(382, 36, 22, '#ffffff', '#ffaa00');
 
+    // 10. Phantom Speeder: magenta cloaked spearhead
+    drawDiamond(437, 13, 10, '#e879f9', '#ffffff');
+    ctx.beginPath();
+    ctx.arc(437, 13, 12, 0, Math.PI * 2);
+    ctx.strokeStyle = '#f0abfc';
+    ctx.stroke();
+
     // Projectiles
     // Pulse
     drawGlowCircle(6, 96, 4, '#00f3ff', '#ffffff');
@@ -207,8 +217,12 @@ export class DefenseScene extends Phaser.Scene {
     drawDiamond(73, 97, 5, '#00ffcc', '#ffffff');
     // Railgun
     drawDiamond(94, 98, 6, '#ff0055', '#ffffff');
+    // Flak
+    drawDiamond(114, 96, 4, '#34d399', '#ffffff');
+    // Vortex
+    drawGlowCircle(135, 99, 7, '#7c3aed', '#c084fc');
     // Particle
-    drawGlowCircle(112, 94, 3, '#ffffff', '#00f3ff');
+    drawGlowCircle(154, 94, 3, '#ffffff', '#00f3ff');
 
     // Register with Phaser texture manager
     this.textures.addCanvas('neon_atlas', canvas);
@@ -385,6 +399,17 @@ export class DefenseScene extends Phaser.Scene {
           wg.lineBetween(t.x, t.y, em.enemyX[t.targetEnemyIdx], em.enemyY[t.targetEnemyIdx]);
         }
       }
+
+      // If shooting Photon Laser, draw continuous thermal beam
+      if (t.type === 'laser' && t.targetEnemyIdx >= 0 && em.enemyActive[t.targetEnemyIdx] === 1) {
+        const beamW = Math.min(6, 2.5 + t.laserLockDuration * 0.7);
+        wg.lineStyle(beamW + 2, 0xff2200, 0.45);
+        wg.lineBetween(t.x, t.y, em.enemyX[t.targetEnemyIdx], em.enemyY[t.targetEnemyIdx]);
+        wg.lineStyle(beamW, 0xffaa00, 0.9);
+        wg.lineBetween(t.x, t.y, em.enemyX[t.targetEnemyIdx], em.enemyY[t.targetEnemyIdx]);
+        wg.lineStyle(beamW * 0.4, 0xffffff, 1);
+        wg.lineBetween(t.x, t.y, em.enemyX[t.targetEnemyIdx], em.enemyY[t.targetEnemyIdx]);
+      }
     }
 
     // --- RENDER HIGH-VOLUME ENTITIES (ENEMIES & PROJECTILES) ---
@@ -462,6 +487,8 @@ export class DefenseScene extends Phaser.Scene {
           else if (pType === 2) pFrameKey = 'proj_mortar';
           else if (pType === 3) pFrameKey = 'proj_cryo';
           else if (pType === 4) pFrameKey = 'proj_railgun';
+          else if (pType === 5) pFrameKey = 'proj_flak';
+          else if (pType === 6) pFrameKey = 'proj_vortex';
 
           const frame = this.cachedFrames[pFrameKey];
           const bob = this.blitterBobs[bobIdx++];
@@ -625,6 +652,14 @@ export class DefenseScene extends Phaser.Scene {
     this.selectedTowerId = null;
     if (this.onTowerSelected) {
       this.onTowerSelected(null);
+    }
+  }
+
+  public toggleFullscreen(): void {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
     }
   }
 }

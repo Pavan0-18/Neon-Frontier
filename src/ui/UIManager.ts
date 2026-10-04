@@ -19,7 +19,11 @@ export class UIManager {
   private btnPause!: HTMLElement;
   private speedBtns: Record<number, HTMLElement> = {};
   private btnAudio!: HTMLElement;
+  private btnFullscreen!: HTMLElement;
   private btnPerfLab!: HTMLElement;
+
+  private btnTacticalEmp!: HTMLButtonElement;
+  private btnTacticalBombard!: HTMLButtonElement;
 
   private waveActionContainer!: HTMLElement;
   private btnStartWave!: HTMLElement;
@@ -111,7 +115,11 @@ export class UIManager {
     this.speedBtns[2] = document.getElementById('btn-speed-2')!;
     this.speedBtns[4] = document.getElementById('btn-speed-4')!;
     this.btnAudio = document.getElementById('btn-audio')!;
+    this.btnFullscreen = document.getElementById('btn-fullscreen')!;
     this.btnPerfLab = document.getElementById('btn-perf-lab')!;
+
+    this.btnTacticalEmp = document.getElementById('btn-tactical-emp') as HTMLButtonElement;
+    this.btnTacticalBombard = document.getElementById('btn-tactical-bombard') as HTMLButtonElement;
 
     this.waveActionContainer = document.getElementById('wave-action-container')!;
     this.btnStartWave = document.getElementById('btn-start-wave')!;
@@ -180,7 +188,7 @@ export class UIManager {
   }
 
   private initBuildDeck(): void {
-    const types: TowerType[] = ['pulse', 'tesla', 'mortar', 'cryo', 'railgun'];
+    const types: TowerType[] = ['pulse', 'tesla', 'mortar', 'cryo', 'railgun', 'laser', 'flak', 'vortex'];
     this.buildDeck.innerHTML = '';
 
     types.forEach((type, idx) => {
@@ -262,6 +270,21 @@ export class UIManager {
       GlobalSoundFX.playUIClick();
     });
 
+    // Fullscreen Toggle
+    this.btnFullscreen?.addEventListener('click', () => {
+      this.scene.toggleFullscreen();
+      GlobalSoundFX.playUIClick();
+    });
+
+    // Tactical Actions
+    this.btnTacticalEmp?.addEventListener('click', () => {
+      this.triggerTacticalEMP();
+    });
+
+    this.btnTacticalBombard?.addEventListener('click', () => {
+      this.triggerTacticalBombardment();
+    });
+
     // Wave Actions
     this.btnStartWave.addEventListener('click', () => {
       this.engine.waveSystem.startNextWave();
@@ -341,10 +364,13 @@ export class UIManager {
     };
 
     this.engine.waveSystem.onWaveStart = (w, isBoss, bossName) => {
+      const def = this.engine.waveSystem.currentWaveDef;
       if (isBoss) {
-        this.showBanner('CRITICAL THREAT DETECTED', `${bossName || 'BOSS UNIT'} APPROACHING`);
+        this.showBanner(`ROUND ${w}: CRITICAL BOSS THREAT`, `${bossName || 'BOSS BEHEMOTH'} APPROACHING`);
       } else {
-        this.showBanner(`WAVE ${w} INBOUND`, 'DEFEND THE ENERGY CONDUIT');
+        const title = def?.modifierTitle ? `ROUND ${w}: ${def.modifierTitle}` : `ROUND ${w} INBOUND`;
+        const desc = def?.modifierDesc || 'Defend the orbital energy conduit.';
+        this.showBanner(title, desc);
       }
       this.updateHUD();
     };
@@ -453,9 +479,9 @@ export class UIManager {
 
   private bindKeyboardShortcuts(): void {
     window.addEventListener('keydown', (e: KeyboardEvent) => {
-      // Hotkeys 1-5 for towers
-      if (['1', '2', '3', '4', '5'].includes(e.key)) {
-        const types: TowerType[] = ['pulse', 'tesla', 'mortar', 'cryo', 'railgun'];
+      // Hotkeys 1-8 for towers
+      if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(e.key)) {
+        const types: TowerType[] = ['pulse', 'tesla', 'mortar', 'cryo', 'railgun', 'laser', 'flak', 'vortex'];
         const idx = parseInt(e.key, 10) - 1;
         const type = types[idx];
         if (type) {
@@ -474,12 +500,50 @@ export class UIManager {
         GlobalSoundFX.playUIClick();
       }
 
+      // F for Fullscreen
+      if (e.key.toLowerCase() === 'f' && e.key !== 'F3') {
+        this.scene.toggleFullscreen();
+        GlobalSoundFX.playUIClick();
+      }
+
+      // Q for Orbital EMP
+      if (e.key.toLowerCase() === 'q') {
+        this.triggerTacticalEMP();
+      }
+
+      // E for Orbital Bombardment
+      if (e.key.toLowerCase() === 'e') {
+        this.triggerTacticalBombardment();
+      }
+
       // F3 for Perf Lab
       if (e.key === 'F3') {
         e.preventDefault();
         this.togglePerfLab();
       }
     });
+  }
+
+  public triggerTacticalEMP(): void {
+    if (this.engine.economySystem.spendCredits(200)) {
+      const hits = this.engine.entityMgr.triggerOrbitalEMP();
+      GlobalSoundFX.playBossKlaxon();
+      this.showBanner('ORBITAL EMP DISCHARGED', `${hits} hostiles paralyzed & shields neutralized!`);
+      this.updateHUD();
+    } else {
+      this.showBanner('INSUFFICIENT CREDITS', 'Orbital EMP requires $200 credits.');
+    }
+  }
+
+  public triggerTacticalBombardment(): void {
+    if (this.engine.economySystem.spendCredits(300)) {
+      const hits = this.engine.entityMgr.triggerOrbitalBombardment(640, 360, 220, 1500);
+      GlobalSoundFX.playMortarExplosion();
+      this.showBanner('ORBITAL BOMBARDMENT FIRED', `Atmospheric kinetic strike hit sector.`);
+      this.updateHUD();
+    } else {
+      this.showBanner('INSUFFICIENT CREDITS', 'Bombardment strike requires $300 credits.');
+    }
   }
 
   public togglePerfLab(): void {
@@ -500,15 +564,19 @@ export class UIManager {
     this.creditsText.textContent = `$${eco.credits}`;
     this.scoreText.textContent = eco.score.toLocaleString();
 
-    // Wave
+    // Round
     this.waveText.textContent = `${wave.currentWaveNumber} / ${wave.totalWaves}`;
 
-    // Wave Action Button State
+    // Tactical buttons state
+    if (this.btnTacticalEmp) this.btnTacticalEmp.disabled = (eco.credits < 200);
+    if (this.btnTacticalBombard) this.btnTacticalBombard.disabled = (eco.credits < 300);
+
+    // Wave / Round Action Button State
     if (wave.waveInProgress) {
       this.waveActionContainer.classList.add('hidden');
     } else {
       this.waveActionContainer.classList.remove('hidden');
-      this.waveBtnLabel.textContent = `INITIATE WAVE ${wave.currentWaveNumber}`;
+      this.waveBtnLabel.textContent = `ENGAGE ROUND ${wave.currentWaveNumber}`;
       if (wave.isAutoStartActive) {
         this.waveAutoCountdown.textContent = `Auto-launch in ${Math.ceil(wave.autoStartCountdown)}s...`;
       } else {

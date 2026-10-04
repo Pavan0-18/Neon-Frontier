@@ -41,8 +41,8 @@ export class GameEngine {
   constructor() {
     this.entityMgr = new EntityManager();
     this.spatialGrid = new SpatialGrid(1280, 720, 64);
-    this.combatSystem = new CombatSystem(this.entityMgr, this.spatialGrid);
     this.movementSystem = new MovementSystem(this.entityMgr);
+    this.combatSystem = new CombatSystem(this.entityMgr, this.spatialGrid, this.movementSystem);
     this.waveSystem = new WaveSystem(this.entityMgr);
     this.economySystem = new EconomySystem();
     this.perfMonitor = new PerformanceMonitor();
@@ -146,18 +146,19 @@ export class GameEngine {
       }
     }
 
-    // 2. Tower Targeting & Combat System
-    this.perfMonitor.beginTargeting();
-    this.combatSystem.update(dt);
-    this.perfMonitor.endTargeting();
-
-    // 3. Movement, Projectile collisions, and Status Effects
+    // Reset combat stats event for this tick
     this.combatStatsEvent.damageDealt = 0;
     this.combatStatsEvent.creditsEarned = 0;
     this.combatStatsEvent.scoreEarned = 0;
     this.combatStatsEvent.coreDamageTaken = 0;
     this.combatStatsEvent.enemiesKilled = 0;
 
+    // 2. Tower Targeting & Combat System
+    this.perfMonitor.beginTargeting();
+    this.combatSystem.update(dt, this.combatStatsEvent);
+    this.perfMonitor.endTargeting();
+
+    // 3. Movement, Projectile collisions, and Status Effects
     this.movementSystem.update(dt, this.combatStatsEvent);
 
     // Apply combat stats to economy

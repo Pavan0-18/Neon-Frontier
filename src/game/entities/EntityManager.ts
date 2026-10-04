@@ -20,6 +20,8 @@ export interface TowerEntity {
   totalDamageDealt: number;
   currentStats: TowerLevelStats;
   targetEnemyIdx: number;
+  laserTargetIdx: number;
+  laserLockDuration: number;
 }
 
 export interface FloatingText {
@@ -78,7 +80,7 @@ export class EntityManager {
 
   // Type keys mapping
   public readonly enemyTypeKeys: EnemyType[] = [
-    'scout', 'drone', 'tank', 'shield', 'regenerator', 'swarm',
+    'scout', 'drone', 'tank', 'shield', 'regenerator', 'swarm', 'phantom',
     'boss_behemoth', 'boss_warp_lord', 'boss_mothership'
   ];
 
@@ -92,13 +94,14 @@ export class EntityManager {
   public projTargetIdx: Int32Array;
   public projDamage: Float32Array;
   public projSpeed: Float32Array;
-  public projType: Uint8Array; // 0=pulse, 1=tesla, 2=mortar, 3=cryo, 4=railgun
+  public projType: Uint8Array; // 0=pulse, 1=tesla, 2=mortar, 3=cryo, 4=railgun, 5=flak, 6=vortex
   public projSplashRadius: Float32Array;
   public projChainCount: Uint8Array;
   public projChainRange: Float32Array;
   public projChainFalloff: Float32Array;
   public projSlowFactor: Float32Array;
   public projSlowDuration: Float32Array;
+  public projPullForce: Float32Array;
   public projLifetime: Float32Array;
 
   public activeProjIndices: Int32Array;
@@ -173,6 +176,7 @@ export class EntityManager {
     this.projChainFalloff = new Float32Array(pMax);
     this.projSlowFactor = new Float32Array(pMax);
     this.projSlowDuration = new Float32Array(pMax);
+    this.projPullForce = new Float32Array(pMax);
     this.projLifetime = new Float32Array(pMax);
 
     this.activeProjIndices = new Int32Array(pMax);
@@ -290,7 +294,8 @@ export class EntityManager {
     chainRange: number = 0,
     chainFalloff: number = 0,
     slowFactor: number = 1,
-    slowDuration: number = 0
+    slowDuration: number = 0,
+    pullForce: number = 0
   ): number {
     if (this.freeProjCount === 0) return -1;
 
@@ -315,6 +320,7 @@ export class EntityManager {
     this.projChainFalloff[slot] = chainFalloff;
     this.projSlowFactor[slot] = slowFactor;
     this.projSlowDuration[slot] = slowDuration;
+    this.projPullForce[slot] = pullForce;
     this.projLifetime[slot] = 0;
 
     this.activeProjIndices[this.activeProjCount++] = slot;
@@ -358,7 +364,9 @@ export class EntityManager {
       kills: 0,
       totalDamageDealt: 0,
       currentStats: stats,
-      targetEnemyIdx: -1
+      targetEnemyIdx: -1,
+      laserTargetIdx: -1,
+      laserLockDuration: 0
     };
 
     this.towers.push(tower);
@@ -454,5 +462,54 @@ export class EntityManager {
     // Clear particles & text
     for (const p of this.particles) p.active = false;
     for (const ft of this.floatingTexts) ft.active = false;
+  }
+
+  // --- TACTICAL ORBITAL STRIKES ---
+
+  public triggerOrbitalEMP(): number {
+    let affected = 0;
+    const count = this.activeEnemyCount;
+    const indices = this.activeEnemyIndices;
+
+    for (let i = 0; i < count; i++) {
+      const slot = indices[i];
+      if (this.enemyActive[slot] === 1) {
+        this.enemySlowTimer[slot] = 4.0;
+        this.enemySlowFactor[slot] = 0.05; // 95% paralyzing freeze
+        this.enemyShield[slot] = 0; // Discharges all energy shields
+        this.spawnParticles(this.enemyX[slot], this.enemyY[slot], 0x00f3ff, 6, 1.2);
+        affected++;
+      }
+    }
+
+    return affected;
+  }
+
+  public triggerOrbitalBombardment(x: number, y: number, radius: number = 160, damage: number = 1200): number {
+    let hits = 0;
+    const rSq = radius * radius;
+    const count = this.activeEnemyCount;
+    const indices = this.activeEnemyIndices;
+
+    for (let i = count - 1; i >= 0; i--) {
+      const slot = indices[i];
+      if (this.enemyActive[slot] === 1) {
+        const dx = this.enemyX[slot] - x;
+        const dy = this.enemyY[slot] - y;
+        if (dx * dx + dy * dy <= rSq) {
+          const curHp = this.enemyHealth[slot];
+          this.enemyHealth[slot] = Math.max(0, curHp - damage);
+          this.spawnFloatingText(this.enemyX[slot], this.enemyY[slot] - 15, `-${damage}`, '#ffaa00');
+          if (this.enemyHealth[slot] <= 0) {
+            this.killEnemy(slot);
+          }
+          hits++;
+        }
+      }
+    }
+
+    this.spawnParticles(x, y, 0xff0055, 35, 2.5);
+    this.spawnParticles(x, y, 0xffaa00, 25, 2.0);
+    return hits;
   }
 }
