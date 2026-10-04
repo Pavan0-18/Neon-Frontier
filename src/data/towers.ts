@@ -39,6 +39,8 @@ export interface TowerDefinition {
   color: number;
   colorHex: string;
   bulletColor: number;
+  unlockWave: number;
+  iconChar: string;
   levels: TowerLevelStats[];
 }
 
@@ -52,6 +54,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     color: 0x00f3ff,
     colorHex: '#00f3ff',
     bulletColor: 0x38bdf8,
+    unlockWave: 1,
+    iconChar: '⚡',
     levels: [
       {
         level: 1,
@@ -91,6 +95,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     color: 0xb026ff,
     colorHex: '#b026ff',
     bulletColor: 0xc084fc,
+    unlockWave: 3,
+    iconChar: '🔮',
     levels: [
       {
         level: 1,
@@ -139,6 +145,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     color: 0xffaa00,
     colorHex: '#ffaa00',
     bulletColor: 0xf59e0b,
+    unlockWave: 6,
+    iconChar: '💥',
     levels: [
       {
         level: 1,
@@ -181,6 +189,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     color: 0x00ffcc,
     colorHex: '#00ffcc',
     bulletColor: 0x67e8f9,
+    unlockWave: 10,
+    iconChar: '❄',
     levels: [
       {
         level: 1,
@@ -226,6 +236,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     color: 0xff0055,
     colorHex: '#ff0055',
     bulletColor: 0xf43f5e,
+    unlockWave: 15,
+    iconChar: '🎯',
     levels: [
       {
         level: 1,
@@ -265,6 +277,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     color: 0xff2200,
     colorHex: '#ff2200',
     bulletColor: 0xff4422,
+    unlockWave: 20,
+    iconChar: '◉',
     levels: [
       {
         level: 1,
@@ -304,6 +318,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     color: 0x34d399,
     colorHex: '#34d399',
     bulletColor: 0x10b981,
+    unlockWave: 28,
+    iconChar: '◈',
     levels: [
       {
         level: 1,
@@ -346,6 +362,8 @@ export const TOWER_DEFINITIONS: Record<TowerType, TowerDefinition> = {
     color: 0x7c3aed,
     colorHex: '#7c3aed',
     bulletColor: 0xa855f7,
+    unlockWave: 36,
+    iconChar: '🌀',
     levels: [
       {
         level: 1,

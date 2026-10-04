@@ -17,15 +17,23 @@
     <!-- HUD Overlay -->
     <div id="hud-overlay" class="hud-overlay">
       <!-- Top Status Bar -->
+      <!-- Screen-Space Damage Vignette & Base Danger Alert -->
+      <div id="breach-vignette" class="breach-vignette"></div>
+      <div id="base-danger-alert" class="base-danger-alert hidden">
+        <span class="danger-pulse-icon">⚠</span>
+        <span class="danger-text">BASE IN IMMEDIATE DANGER: HOSTILES IN PROXIMITY</span>
+      </div>
+
+      <!-- Top Status Bar -->
       <header class="hud-header">
         <div class="hud-branding">
           <div class="logo-glitch" data-text="NEON FRONTIER">NEON FRONTIER</div>
-          <div class="logo-sub">LAST ORBIT // ORBITAL CORE DEFENSE</div>
+          <div class="logo-sub">LAST ORBIT // ORBITAL DEFENSE</div>
         </div>
 
         <div class="hud-stats">
           <div class="stat-card" id="core-health-card">
-            <span class="stat-label">ENERGY CORE</span>
+            <span class="stat-label">⚡ ENERGY</span>
             <div class="health-bar-container">
               <div id="core-health-fill" class="health-bar-fill"></div>
             </div>
@@ -42,29 +50,54 @@
             <span id="wave-text" class="stat-value neon-amber">1 / 50</span>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card stat-score">
             <span class="stat-label">SCORE</span>
             <span id="score-text" class="stat-value">0</span>
-          </div>
-
-          <div class="stat-card seed-card">
-            <span class="stat-label">RNG SEED</span>
-            <span id="seed-display" class="stat-value font-mono">#74921</span>
           </div>
         </div>
 
         <div class="hud-controls">
-          <div class="speed-group">
+          <div class="speed-group desktop-only">
             <button id="btn-pause" class="hud-btn" title="Pause / Resume (Space / P)">⏸</button>
             <button id="btn-speed-1" class="hud-btn active" title="1x Speed">1×</button>
             <button id="btn-speed-2" class="hud-btn" title="2x Speed">2×</button>
             <button id="btn-speed-4" class="hud-btn" title="4x Speed">4×</button>
           </div>
-          <button id="btn-audio" class="hud-btn" title="Toggle Sound">🔊</button>
-          <button id="btn-fullscreen" class="hud-btn" title="Toggle Fullscreen (F)">⛶ FULLSCREEN</button>
-          <button id="btn-perf-lab" class="hud-btn neon-btn-amber" title="Performance Lab (F3)">⚡ PERF LAB [F3]</button>
+          <button id="btn-radar-toggle" class="hud-btn desktop-only" title="Toggle Radar Mini-Map">📡</button>
+          <button id="btn-audio" class="hud-btn desktop-only" title="Toggle Sound">🔊</button>
+          <button id="btn-fullscreen" class="hud-btn desktop-only" title="Toggle Fullscreen (F)">⛶</button>
+          <button id="btn-perf-lab" class="hud-btn dev-btn desktop-only" title="Performance Lab (F3)">⚙ DEV [F3]</button>
+          <button id="btn-mobile-menu" class="hud-btn mobile-menu-toggle" title="Menu">☰</button>
         </div>
       </header>
+
+      <!-- Mobile Dropdown Menu -->
+      <div id="mobile-menu-drawer" class="mobile-menu-drawer hidden">
+        <div class="mobile-menu-row">
+          <span class="m-menu-label">SPEED:</span>
+          <div class="speed-group">
+            <button id="m-btn-pause" class="hud-btn">⏸</button>
+            <button id="m-btn-speed-1" class="hud-btn active">1×</button>
+            <button id="m-btn-speed-2" class="hud-btn">2×</button>
+            <button id="m-btn-speed-4" class="hud-btn">4×</button>
+          </div>
+        </div>
+        <div class="mobile-menu-row">
+          <button id="m-btn-audio" class="hud-btn menu-action-btn">🔊 SOUND</button>
+          <button id="m-btn-fullscreen" class="hud-btn menu-action-btn">⛶ FULLSCREEN</button>
+          <button id="m-btn-radar" class="hud-btn menu-action-btn">📡 RADAR</button>
+          <button id="m-btn-perf" class="hud-btn menu-action-btn dev-btn">⚙ DEV LAB</button>
+        </div>
+      </div>
+
+      <!-- Radar Mini-map Widget -->
+      <div id="radar-container" class="radar-container hidden">
+        <div class="radar-header">
+          <span>ORBITAL RADAR</span>
+          <button id="btn-close-radar" class="radar-close">&times;</button>
+        </div>
+        <canvas id="radar-canvas" width="130" height="75"></canvas>
+      </div>
 
       <!-- Center Wave Action / Boss Warning -->
       <div id="center-banner" class="center-banner hidden">
@@ -95,65 +128,67 @@
         <div id="wave-auto-countdown" class="wave-auto-countdown">Incoming in 15s...</div>
       </div>
 
-      <!-- Bottom Build Bar -->
+      <!-- Bottom Interactive Dock (Morphs between Build Deck & Context-Aware Inspector) -->
       <footer class="hud-footer">
-        <div class="build-deck" id="build-deck">
-          <!-- Tower build cards dynamically created or populated -->
+        <!-- 1. Normal State: Build Deck -->
+        <div class="build-deck-wrapper" id="build-deck-wrapper">
+          <div class="build-deck" id="build-deck">
+            <!-- Populated with compact tower cards -->
+          </div>
+          <button id="btn-more-towers" class="btn-more-towers" title="View All Defensive Towers">
+            <span class="more-dots">•••</span>
+            <small>ALL</small>
+          </button>
+        </div>
+
+        <!-- 2. Selected State: Context-Aware Tower Inspector -->
+        <div class="context-inspector hidden" id="context-inspector">
+          <div class="ci-header">
+            <div class="ci-identity">
+              <span class="ci-icon" id="ci-icon">⚡</span>
+              <div>
+                <div class="ci-name" id="ci-name">PULSE CANNON</div>
+                <div class="ci-tier" id="ci-tier">MK I DEFENSE</div>
+              </div>
+            </div>
+            <button class="ci-close-btn" id="ci-close-btn" title="Deselect (Esc)">&times;</button>
+          </div>
+
+          <div class="ci-stats-row">
+            <div class="ci-stat">
+              <span class="ci-label">DAMAGE</span>
+              <span class="ci-val" id="ci-dmg">38 → 72</span>
+            </div>
+            <div class="ci-stat">
+              <span class="ci-label">RANGE</span>
+              <span class="ci-val" id="ci-range">165 → 190</span>
+            </div>
+            <div class="ci-stat">
+              <span class="ci-label">FIRE RATE</span>
+              <span class="ci-val" id="ci-rate">2.0/s → 2.4/s</span>
+            </div>
+            <div class="ci-stat">
+              <span class="ci-label">DPS</span>
+              <span class="ci-val" id="ci-dps">76.0 → 172.8</span>
+            </div>
+          </div>
+
+          <div class="ci-actions-row">
+            <button id="ci-btn-upgrade" class="ci-btn ci-btn-upgrade">
+              <span class="ci-btn-title" id="ci-upgrade-title">UPGRADE MK II</span>
+              <span class="ci-btn-cost" id="ci-upgrade-cost">$110</span>
+            </button>
+            <button id="ci-btn-sell" class="ci-btn ci-btn-sell">
+              <span class="ci-btn-title">DECOMMISSION</span>
+              <span class="ci-btn-cost" id="ci-sell-cost">+$66</span>
+            </button>
+            <div class="ci-targeting-group">
+              <span class="ci-target-label">TARGET:</span>
+              <button id="ci-target-toggle" class="ci-target-toggle">FIRST ▾</button>
+            </div>
+          </div>
         </div>
       </footer>
-
-      <!-- Tower Selection / Inspection Panel -->
-      <aside id="tower-panel" class="tower-panel hidden">
-        <div class="panel-header">
-          <div class="panel-title-group">
-            <span id="panel-tower-type" class="panel-tower-type">PULSE CANNON</span>
-            <span id="panel-tower-level" class="panel-tower-level">MK I</span>
-          </div>
-          <button id="panel-close-btn" class="panel-close-btn">&times;</button>
-        </div>
-        <div class="panel-body">
-          <div class="panel-stats-grid">
-            <div class="panel-stat">
-              <span class="p-label">DMG</span>
-              <span id="p-dmg" class="p-val">45</span>
-            </div>
-            <div class="panel-stat">
-              <span class="p-label">RANGE</span>
-              <span id="p-range" class="p-val">160</span>
-            </div>
-            <div class="panel-stat">
-              <span class="p-label">RATE</span>
-              <span id="p-rate" class="p-val">1.8/s</span>
-            </div>
-            <div class="panel-stat">
-              <span class="p-label">DPS</span>
-              <span id="p-dps" class="p-val">81.0</span>
-            </div>
-          </div>
-
-          <div class="targeting-section">
-            <label class="section-label">TARGETING PROTOCOL</label>
-            <div class="targeting-modes" id="targeting-modes">
-              <button class="target-btn active" data-mode="first">FIRST</button>
-              <button class="target-btn" data-mode="last">LAST</button>
-              <button class="target-btn" data-mode="closest">CLOSE</button>
-              <button class="target-btn" data-mode="strongest">STRONG</button>
-              <button class="target-btn" data-mode="weakest">WEAK</button>
-            </div>
-          </div>
-
-          <div class="panel-actions">
-            <button id="btn-upgrade-tower" class="btn-action btn-upgrade">
-              <span class="action-name">UPGRADE TO MK II</span>
-              <span id="upgrade-cost-text" class="action-cost">$150</span>
-            </button>
-            <button id="btn-sell-tower" class="btn-action btn-sell">
-              <span class="action-name">DECOMMISSION</span>
-              <span id="sell-value-text" class="action-cost">+$75</span>
-            </button>
-          </div>
-        </div>
-      </aside>
 
       <!-- Performance Lab Panel (F3) -->
       <div id="perf-lab-modal" class="perf-modal hidden">
@@ -317,31 +352,77 @@
         </div>
       </div>
 
-      <!-- Game Over Modal -->
+      <!-- Mobile Tower Selection Drawer Modal -->
+      <div id="tower-drawer-modal" class="tower-drawer-modal hidden">
+        <div class="drawer-backdrop" id="drawer-backdrop"></div>
+        <div class="drawer-content">
+          <div class="drawer-header">
+            <div class="drawer-title">ORBITAL DEFENSE ARSENAL</div>
+            <button id="drawer-close-btn" class="drawer-close">&times;</button>
+          </div>
+          <div class="drawer-list" id="drawer-tower-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Cinematic Intro Mission Briefing Modal -->
+      <div id="intro-modal" class="game-modal">
+        <div class="modal-card modal-intro">
+          <div class="modal-badge intro-badge">ORBITAL DEFENSE COMMAND // SYS_INIT</div>
+          <h1 class="intro-title">NEON FRONTIER</h1>
+          <div class="intro-subtitle">LAST ORBIT // ENERGY CORE DEFENSE</div>
+          <div class="intro-terminal">
+            <div class="terminal-line"><span class="t-prompt">&gt;</span> CORE POWER STATUS: ONLINE [100%]</div>
+            <div class="terminal-line"><span class="t-prompt">&gt;</span> DEFENSE GRID: 8 TOWER SCHEMATICS LOADED</div>
+            <div class="terminal-line t-alert"><span class="t-prompt">&gt;</span> ALERT: 50 HOSTILE SWARM WAVES APPROACHING</div>
+            <div class="terminal-line"><span class="t-prompt">&gt;</span> DIRECTIVE: BUILD TOWERS, UPGRADE TECH, PREVENT CORE BREACH</div>
+          </div>
+          <button id="btn-deploy-defense" class="btn-modal-action victory-action">
+            DEPLOY DEFENSES [ SPACE / CLICK ]
+          </button>
+        </div>
+      </div>
+
+      <!-- Enhanced Game Over Modal -->
       <div id="game-over-modal" class="game-modal hidden">
         <div class="modal-card modal-game-over">
           <div class="modal-badge danger">CORE BREACH DETECTED</div>
           <h2 class="modal-title">DEFENSE COLLAPSED</h2>
-          <p class="modal-desc">Orbital core integrity dropped to zero. Swarm breach confirmed.</p>
+          <div class="rating-display">
+            <span class="rating-label">DEFENSE RATING</span>
+            <span class="rating-badge rating-c" id="go-rating">C</span>
+          </div>
+          <p class="modal-desc">Orbital core integrity breached. Swarm forces overran the station perimeter.</p>
           <div class="modal-stats">
             <div><span>ROUNDS SURVIVED:</span> <strong id="go-wave">14 / 50</strong></div>
-            <div><span>ENEMIES ELIMINATED:</span> <strong id="go-kills">384</strong></div>
-            <div><span>FINAL SCORE:</span> <strong id="go-score">14,290</strong></div>
+            <div><span>HOSTILES ELIMINATED:</span> <strong id="go-kills">384</strong></div>
+            <div><span>TOTAL DAMAGE INFLICTED:</span> <strong id="go-damage">48,200</strong></div>
+            <div><span>CREDITS HARVESTED:</span> <strong id="go-credits">$4,250</strong></div>
+            <div><span>MVP DEFENSE TOWER:</span> <strong id="go-mvp" class="neon-cyan">PULSE CANNON</strong></div>
+            <div><span>FINAL SCORE:</span> <strong id="go-score" class="neon-amber">14,290</strong></div>
           </div>
-          <button id="btn-restart-game" class="btn-modal-action">REDEPLOY COLONY DEFENSE</button>
+          <button id="btn-restart-game" class="btn-modal-action">REDEPLOY DEFENSE GRID</button>
         </div>
       </div>
 
-      <!-- Victory Modal -->
+      <!-- Enhanced Victory Modal -->
       <div id="victory-modal" class="game-modal hidden">
         <div class="modal-card modal-victory">
-          <div class="modal-badge victory">SECTOR SECURED</div>
-          <h2 class="modal-title">VICTORY ACHIEVED</h2>
-          <p class="modal-desc">All 50 defense rounds survived. The orbital colony core remains secure.</p>
+          <div class="modal-badge victory">SECTOR 100% SECURED</div>
+          <h2 class="modal-title">ORBIT SECURED</h2>
+          <div class="rating-display">
+            <span class="rating-label">DEFENSE RATING</span>
+            <span class="rating-badge rating-s" id="vic-rating">S+</span>
+          </div>
+          <p class="modal-desc">All 50 defense rounds repelled. Orbital colony core preserved for future generations.</p>
           <div class="modal-stats">
-            <div><span>TOTAL ELIMINATIONS:</span> <strong id="vic-kills">2,450</strong></div>
-            <div><span>FINAL SCORE:</span> <strong id="vic-score">289,500</strong></div>
-            <div><span>CORE INTEGRITY:</span> <strong id="vic-health">88%</strong></div>
+            <div><span>TOTAL ELIMINATIONS:</span> <strong id="vic-kills">8,492</strong></div>
+            <div><span>TOTAL DAMAGE INFLICTED:</span> <strong id="vic-damage">1,248,500</strong></div>
+            <div><span>CREDITS HARVESTED:</span> <strong id="vic-credits">$18,240</strong></div>
+            <div><span>CORE INTEGRITY PRESERVED:</span> <strong id="vic-health">88%</strong></div>
+            <div><span>MVP DEFENSE TOWER:</span> <strong id="vic-mvp" class="neon-cyan">RAILGUN</strong></div>
+            <div><span>FINAL SCORE:</span> <strong id="vic-score" class="neon-amber">289,500</strong></div>
           </div>
           <button id="btn-play-again" class="btn-modal-action victory-action">RE-ENTER ORBIT</button>
         </div>

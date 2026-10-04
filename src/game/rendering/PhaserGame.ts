@@ -30,6 +30,7 @@ export class DefenseScene extends Phaser.Scene {
   private mouseWorldX: number = 0;
   private mouseWorldY: number = 0;
   private isPointerInCanvas: boolean = false;
+  public isBaseInDanger: boolean = false;
 
   // Optimization toggles
   public useViewportCulling: boolean = true;
@@ -340,14 +341,16 @@ export class DefenseScene extends Phaser.Scene {
   }
 
   private renderFrame(dt: number): void {
-    // Animate energy pulses along the path
-    this.flowOffset = (this.flowOffset + dt * 140) % GlobalPathSystem.totalLength;
+    // 1. Animate high-energy pulses along the orbital conduit
+    this.flowOffset = (this.flowOffset + dt * 160) % GlobalPathSystem.totalLength;
     this.energyFlowGraphics.clear();
-    this.energyFlowGraphics.fillStyle(0x00f3ff, 0.8);
     const tempP = { x: 0, y: 0 };
-    for (let d = this.flowOffset; d < GlobalPathSystem.totalLength; d += 80) {
+    for (let d = this.flowOffset; d < GlobalPathSystem.totalLength; d += 65) {
       GlobalPathSystem.getPositionAtDistance(d, tempP);
+      this.energyFlowGraphics.fillStyle(0x00f3ff, 0.85);
       this.energyFlowGraphics.fillCircle(tempP.x, tempP.y, 3);
+      this.energyFlowGraphics.fillStyle(0xffffff, 0.95);
+      this.energyFlowGraphics.fillCircle(tempP.x, tempP.y, 1.5);
     }
 
     const wg = this.worldGraphics;
@@ -358,6 +361,28 @@ export class DefenseScene extends Phaser.Scene {
     const em = this.engine.entityMgr;
     const viewWidth = 1280;
     const viewHeight = 720;
+
+    // Base Threat Detection & Danger Glow
+    const core = GlobalPathSystem.corePosition;
+    let minEnemyDist = 9999;
+    const activeECount = em.activeEnemyCount;
+    const activeEIndices = em.activeEnemyIndices;
+    for (let i = 0; i < activeECount; i++) {
+      const slot = activeEIndices[i];
+      if (em.enemyActive[slot] === 1) {
+        const d = Math.hypot(em.enemyX[slot] - core.x, em.enemyY[slot] - core.y);
+        if (d < minEnemyDist) minEnemyDist = d;
+      }
+    }
+    this.isBaseInDanger = (minEnemyDist < 220);
+
+    if (this.isBaseInDanger) {
+      const pulseR = 34 + Math.sin(Date.now() * 0.008) * 8;
+      wg.lineStyle(2.5, 0xff0055, 0.85);
+      wg.strokeCircle(core.x, core.y, pulseR);
+      wg.fillStyle(0xff0055, 0.15);
+      wg.fillCircle(core.x, core.y, pulseR);
+    }
 
     // --- RENDER TOWERS ---
     for (let i = 0; i < em.towers.length; i++) {
@@ -413,8 +438,6 @@ export class DefenseScene extends Phaser.Scene {
     }
 
     // --- RENDER HIGH-VOLUME ENTITIES (ENEMIES & PROJECTILES) ---
-    const activeECount = em.activeEnemyCount;
-    const activeEIndices = em.activeEnemyIndices;
     const activePCount = em.activeProjCount;
     const activePIndices = em.activeProjIndices;
 
@@ -462,6 +485,16 @@ export class DefenseScene extends Phaser.Scene {
             hbg.fillRect(barX, barY, barW, barH);
             hbg.fillStyle(hpPct > 0.4 ? 0x00ff88 : 0xff0055, 1);
             hbg.fillRect(barX, barY, barW * hpPct, barH);
+          }
+
+          // Enemy Status Effect Indicators (Shield bubble & Frost slow)
+          if (em.enemyShield[slot] > 0) {
+            hbg.lineStyle(1.5, 0x00f3ff, 0.85);
+            hbg.strokeCircle(ex, ey, (frame.width * 0.5) + 3);
+          }
+          if (em.enemySlowTimer[slot] > 0) {
+            hbg.fillStyle(0x00ffcc, 0.9);
+            hbg.fillCircle(ex, ey - frame.height * 0.5 - 5, 3);
           }
         }
       }
@@ -557,14 +590,49 @@ export class DefenseScene extends Phaser.Scene {
     const uig = this.uiGraphics;
     uig.clear();
 
-    // 1. If tower is selected, render range ring
+    // 1. If tower is selected, render dynamic animated range ring & targeting vector
     if (this.selectedTowerId !== null) {
       const t = em.towers.find(tow => tow.id === this.selectedTowerId);
       if (t) {
-        uig.lineStyle(2, 0x00f3ff, 0.7);
-        uig.strokeCircle(t.x, t.y, t.range);
+        const pulse = Math.sin(Date.now() * 0.005) * 3;
+        const animatedRange = t.range + pulse;
+
+        // Animated glowing neon range ring
+        uig.lineStyle(2, 0x00f3ff, 0.85);
+        uig.strokeCircle(t.x, t.y, animatedRange);
+        uig.lineStyle(1, 0x00f3ff, 0.25);
+        uig.strokeCircle(t.x, t.y, t.range - 6);
         uig.fillStyle(0x00f3ff, 0.06);
-        uig.fillCircle(t.x, t.y, t.range);
+        uig.fillCircle(t.x, t.y, animatedRange);
+
+        // Active locked target vector line & reticle
+        if (t.targetEnemyIdx >= 0 && em.enemyActive[t.targetEnemyIdx] === 1) {
+          const tarX = em.enemyX[t.targetEnemyIdx];
+          const tarY = em.enemyY[t.targetEnemyIdx];
+
+          uig.lineStyle(1.5, 0x00ff88, 0.7);
+          uig.lineBetween(t.x, t.y, tarX, tarY);
+
+          // Pulsing target lock bracket
+          const reticleR = 14 + Math.sin(Date.now() * 0.012) * 3;
+          uig.lineStyle(1.5, 0x00ff88, 0.9);
+          uig.strokeCircle(tarX, tarY, reticleR);
+          uig.fillStyle(0x00ff88, 0.15);
+          uig.fillCircle(tarX, tarY, reticleR);
+        }
+
+        // Highlight all other valid hostiles within range with subtle dots
+        for (let j = 0; j < activeECount; j++) {
+          const eslot = activeEIndices[j];
+          if (em.enemyActive[eslot] === 1 && eslot !== t.targetEnemyIdx) {
+            const ex = em.enemyX[eslot];
+            const ey = em.enemyY[eslot];
+            if (Math.hypot(ex - t.x, ey - t.y) <= t.range) {
+              uig.fillStyle(0x00f3ff, 0.5);
+              uig.fillCircle(ex, ey, 4);
+            }
+          }
+        }
       }
     }
 
@@ -661,6 +729,11 @@ export class DefenseScene extends Phaser.Scene {
     } else if (document.exitFullscreen) {
       document.exitFullscreen().catch(() => {});
     }
+  }
+
+  public triggerCoreBreachVFX(): void {
+    this.cameras.main.shake(250, 0.007);
+    this.cameras.main.flash(180, 255, 0, 85, true);
   }
 }
 
