@@ -12,33 +12,47 @@
 
 ## 2. Features
 
-### Core Gameplay
+### Core Gameplay & UX Architecture
+- **Responsive Multi-Device Layouts:**
+  - **Desktop (≥1100px):** Full holographic command deck with primary status bar (⚡ ENERGY, CREDITS, ROUND, SCORE), speed controls, radar toggle, fullscreen, and developer lab.
+  - **Tablet (768px–1099px):** Compact HUD grouping primary vital stats and collapsible settings drawer.
+  - **Mobile (<768px):** Minimalist top telemetry, 4-chip compact build dock with `[•••]` full arsenal drawer, and touch-optimized touch targets (≥44×44px).
+  - **Independent Viewport Scaling:** Game coordinates remain fixed at 1280×720 virtual space with crisp WebGL canvas scaling (`Phaser.Scale.FIT`), decoupling UI flow from simulation coordinates.
+- **Context-Aware Bottom Morphing Inspector:**
+  - Selecting a placed turret dynamically morphs the bottom build dock into a holographic tactical card:
+    - Current vs Upgrade stat differentials: Damage ($38 \to 72$), Range ($165 \to 190$), Fire Rate ($2.0/\text{s} \to 2.4/\text{s}$), DPS ($76 \to 173$).
+    - `[UPGRADE]` and `[DECOMMISSION]` actions.
+    - One-click cycling Targeting Mode toggle: `FIRST ▾` -> `LAST ▾` -> `CLOSE ▾` -> `STRONG ▾` -> `WEAK ▾`.
+- **Dynamic Range Visualization & Targeting Vector:**
+  - Animated pulsating neon range ring.
+  - Live target lock vector line drawn to the locked hostile target with a pulsating lock reticle.
+  - Subtle target acquisition pings underneath all valid hostiles inside weapon range.
+- **Progressive Tower Unlock System:**
+  - Round 1: Pulse Cannon (⚡)
+  - Round 3: Arc Tesla (🔮)
+  - Round 6: Plasma Mortar (💥)
+  - Round 10: Cryo Beacon (❄)
+  - Round 15: Railgun (🎯)
+  - Round 20: Photon Laser (◉)
+  - Round 28: Orbital Flak (◈)
+  - Round 36: Singularity Well (🌀)
+  - Locked slots display lock badges (`🔒 R3`, `🔒 R6`) with real-time unlock toasts upon round completion.
+- **Tactical Mini-Map Radar:**
+  - Real-time 2D canvas radar (130×75px) in top-right displaying conduit spline, energy core, defensive emplacements (cyan), and active hostiles (red/magenta pings).
+- **Base Danger & Core Breach Feedback:**
+  - Real-time proximity threat monitoring: when hostiles approach within 220px of the core, the base radiates danger pulse rings and flashes `⚠ BASE UNDER PROXIMITY THREAT`.
+  - Core damage triggers a red screen vignette (`breach-vignette`), camera shake, and emergency alarm audio.
+  - At $<25\%$ core integrity, health telemetry enters pulsating `CRITICAL ENERGY` state.
+- **Cinematic Mission Briefing & Debrief End Screen:**
+  - Cinematic cyberpunk boot terminal intro modal on launch (`[ DEPLOY DEFENSES ]`).
+  - Comprehensive Victory / Game Over debrief with Defense Rating (`S+`, `A`, `B`, `C`), damage dealt, credits harvested, rounds survived, and MVP Tower breakdown.
 - **50 Strategic Progressive Rounds:** Structured round progression with dynamic difficulty scaling, tactical wave descriptions, boss alert mutators, and manual countdown skip.
-- **8 Distinct Defense Tower Options:**
-  - **Pulse Cannon:** Rapid single-target energy turret.
-  - **Arc Tesla:** Multi-target chain lightning with quadratic falloff.
-  - **Plasma Mortar:** Heavy ballistic launcher with explosive splash radius.
-  - **Cryo Beacon:** Area crowd control emitting tachyon slow pulses.
-  - **Railgun:** Extreme-range kinetic penetrator targeting high-health threats.
-  - **Photon Laser:** Continuous thermal melt beam with progressive damage ramp-up against locked targets.
-  - **Orbital Flak:** Multi-pellet spread barrage shredding dense formations.
-  - **Singularity Well:** Spatial distortion vortex generating gravitational pull forces that drag enemies backward along their trajectory.
 - **Orbital Tactical Abilities:**
-  - **[Q] Orbital EMP:** Station-wide high-frequency pulse that neutralizes all active enemies in the sector with a 4.0-second shutdown.
-  - **[E] Orbital Bombardment:** Satellite kinetic strike unleashing 6 high-yield explosive orbital impact craters along hostile vectors.
-- **Active-Homing Target Tracking (Guaranteed Hit Registration):** Guided projectile vector correction ensures defenses never miss fast-moving hostiles across spline curves, eliminating frustrating overshoots.
-- **Full Screen Mode:** One-click toggle (`[F]` key or top bar `⛶ FULLSCREEN`) with auto-scaling WebGL canvas.
-- **3 Upgrade Levels (MK I, MK II, MK III):** Distinct visual indicators, stat progressions, and scaling sell refund values (70% total invested cost).
-- **5 Configurable Targeting Modes Per Tower:** `First`, `Last`, `Closest`, `Strongest`, `Weakest`.
-- **7 Distinct Enemy Types + 3 Multi-Phase Boss Encounters:**
-  - `Scout` (fast, low HP), `Drone` (standard), `Tank` (heavy armor), `Shield Unit` (absorbs damage), `Regenerator` (continuous HP recovery), `Swarm` (high-density clusters), `Phantom` (hyper-speed cloaked strike craft).
-  - **Orbital Behemoth (Round 10 & 40):** Periodic EMP blast disabling nearby towers.
-  - **Warp Overlord (Round 20):** Phase Shift state granting 75% damage mitigation.
-  - **Apex Prime Leviathan (Round 30 & 50):** Carrier vessel spawning clusters of active escorts.
-- **Procedural Web Audio API Sound Synthesizer:** Fully offline sound synthesis for laser pulses, continuous beam hums, tesla arcs, explosions, railgun hypersonic cracks, alarms, and UI feedback with 0 external audio dependencies.
-- **Game Speed Controls:** `Pause` (freeze simulation without desync), `1×`, `2×`, `4×`.
-- **Holographic Cyberpunk HUD:** Energy core integrity, credits, round counter, score, seed display, tower inspection cards, and range previews.
-- **Integrated Performance Lab (F3):** Live telemetry and interactive stress testing tools with seed-locked reproducibility.
+  - **[Q] Orbital EMP:** Sector-wide 4.0-second hostile paralysis and shield wipe.
+  - **[E] Orbital Bombardment:** Satellite kinetic strike unleashing 6 high-yield explosive craters.
+- **Active-Homing Target Tracking (Guaranteed Hit Registration):** Dynamic vector recalculation ensures zero missed shots on fast-moving hostiles.
+- **Procedural Web Audio API Sound Synthesizer:** Fully offline procedural audio with zero external dependencies.
+- **Integrated Performance Lab (F3 / ⚙ DEV):** Real-time telemetry (FPS, P95, P99, sim/render/targeting timings) and reproducible benchmark presets.
 
 ---
 
