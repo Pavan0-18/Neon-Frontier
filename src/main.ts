@@ -1,6 +1,7 @@
 import { GameEngine } from './game/engine/GameEngine';
 import { createPhaserGame, DefenseScene } from './game/rendering/PhaserGame';
 import { UIManager } from './ui/UIManager';
+import { GlobalRNG } from './game/engine/RNG';
 
 window.addEventListener('DOMContentLoaded', () => {
   // 1. Initialize simulation engine
@@ -16,9 +17,10 @@ window.addEventListener('DOMContentLoaded', () => {
       const uiManager = new UIManager(engine, scene);
       scene.uiManager = uiManager;
 
-      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager }).gameEngine = engine;
-      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager }).defenseScene = scene;
-      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager }).uiManager = uiManager;
+      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager; GlobalRNG: typeof GlobalRNG }).gameEngine = engine;
+      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager; GlobalRNG: typeof GlobalRNG }).defenseScene = scene;
+      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager; GlobalRNG: typeof GlobalRNG }).uiManager = uiManager;
+      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager; GlobalRNG: typeof GlobalRNG }).GlobalRNG = GlobalRNG;
 
       console.log('⚡ NEON FRONTIER: LAST ORBIT initialized successfully.');
     } else {
