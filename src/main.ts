@@ -15,6 +15,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (scene && scene.sys && scene.sys.settings.active) {
       const uiManager = new UIManager(engine, scene);
       scene.uiManager = uiManager;
+
+      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager }).gameEngine = engine;
+      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager }).defenseScene = scene;
+      (window as unknown as { gameEngine: GameEngine; defenseScene: DefenseScene; uiManager: UIManager }).uiManager = uiManager;
+
       console.log('⚡ NEON FRONTIER: LAST ORBIT initialized successfully.');
     } else {
       setTimeout(checkSceneReady, 50);
